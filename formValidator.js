@@ -17,7 +17,7 @@
 // ['secondName']
 
 // use case: rules only for one field
-// inputRules example
+// inputRule example
 // { firstName: ['empty', 'null', 'newRule'] }
 
 const requiredField = "Обязательное поле";
@@ -27,20 +27,20 @@ export const formValidator = ({
   ignoreInputs = [],
   customRules = [],
   generalRules = ["empty"],
-  inputRules = {},
+  inputRule = {},
 }) => {
   const validFields = {};
   let hasErrors = false;
   for (const name in form) {
     if (!ignoreInputs.includes(name)) {
       validFields[name] = "";
-      if (generalRules?.includes("empty") || inputRules[name]?.includes("empty")) {
+      if (generalRules?.includes("empty") || inputRule[name]?.includes("empty")) {
         if (form[name] === undefined || form[name] === "") {
           validFields[name] = requiredField;
           hasErrors = true;
         }
       }
-      if (generalRules?.includes("null") || inputRules[name]?.includes("null")) {
+      if (generalRules?.includes("null") || inputRule[name]?.includes("null")) {
         if (form[name] === null) {
           validFields[name] = requiredField;
           hasErrors = true;
@@ -48,7 +48,7 @@ export const formValidator = ({
       }
 
       customRules.forEach((rule) => {
-        if (inputRules[name]?.includes(rule.name)) {
+        if (inputRule[name]?.includes(rule.name)) {
           const additionalRuleValid = rule.valid(form[name]);
           if (!additionalRuleValid) {
             validFields[name] = rule.text || requiredField;

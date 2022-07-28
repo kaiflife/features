@@ -14,4 +14,4 @@ fs.writeFile(sw_file, buildDate, 'utf8', (error) => {
 
 
 // in your package.json scripts
-// "build": "node ./updateBuildTime.js && node scripts/build.js && cat src/forceUpdateCache.js >> build/service-worker.js",
+// "build": "node ./updateBuildTime.js && react-scripts build && cat src/forceUpdateCache.js >> build/service-worker.js",

@@ -1,0 +1,72 @@
+export const formatPhone = (string) => string?.replace?.(/[\s()_+-]/g, '').trim();
+
+export const removeMaskSymbols = (phone) => phone?.replace?.('+', '')
+  .replace('(', '')
+  .replace(')', '')
+  .replaceAll('_', '')
+  .replaceAll('/', '')
+  .replaceAll('\\', '')
+  .replaceAll('-', '');
+
+export const stringWithLabel = (string, label = '', additionalSign = '') => (string ? `${label}${string}${additionalSign} ` : '');
+
+export const getOktmoLabel = (item) => (item?.name ? `${item.code} ${item.name}`.trim() : '');
+
+const prefixNumber = (str) => {
+  if (str === '7') {
+    return '7 (';
+  }
+  if (str === '8') {
+    return '8 (';
+  }
+  if (str === '9') {
+    return '7 (9';
+  }
+  return '7 (';
+};
+
+export const stringToPhone = (string) => {
+  const value = string.replace(/\D+/g, '');
+  const numberLength = 11;
+
+  let result;
+  if (string.includes('+8') || string[0] === '8') {
+    result = '';
+  } else {
+    result = '+';
+  }
+
+  // eslint-disable-next-line no-plusplus
+  for (let i = 0; i < value.length && i < numberLength; i++) {
+    switch (i) {
+      case 0:
+        result += prefixNumber(value[i]);
+        // eslint-disable-next-line no-continue
+        continue;
+      case 4:
+        result += ') ';
+        break;
+      case 7:
+        result += '-';
+        break;
+      case 9:
+        result += '-';
+        break;
+      default:
+        break;
+    }
+    result += value[i];
+  }
+  return result;
+};
+
+export const stringWithStartEnd = ({ string, start = '', end = '' }) => (string ? `${start}${string}${end}` : '');
+
+export const upperCaseFirstLetter = (string) => (typeof string === 'string' && string ? `${string[0].toUpperCase()}${string.slice(1, string.length)}` : string);
+
+export const sliceLongString = (string, shouldSlice) => {
+  if (shouldSlice && typeof string === 'string' && string.length > 100) {
+    return `${string.slice(0, 97)}...`;
+  }
+  return string;
+};

@@ -1,3 +1,32 @@
+export const PHONE_LENGTH = 11;
+
+export const removeMaskSymbols = (phone) => phone?.replace?.('+', '')
+  .replace('(', '')
+  .replace(')', '')
+  .replaceAll('_', '')
+  .replaceAll('/', '')
+  .replaceAll('\\', '')
+  .replaceAll('-', '');
+
+export function isArray(value) {
+  return Array.isArray(value);
+}
+
+export function isObject(value) {
+  return !isArray(value) && value !== null && !(value instanceof Date) && typeof value === 'object';
+}
+
+export function validationPassword(pass) {
+  return pass?.length >= 6;
+}
+
+export function validateEmail(email) {
+  const regex = /^[-\w.%+]{1,64}@(?:[A-Z0-9-]{1,63}\.){1,125}[A-Z]{2,63}$/i;
+
+  return regex.test(email);
+}
+
+
 // form example
 // { firstName: 'Test', secondName: 'Second Test' }
 
@@ -34,21 +63,19 @@
 // check only fields in array
 // checkOnlyFields: ['phone']
 
-import { validateEmail } from './validateEmail';
-import { removeMaskSymbols } from './stringHelper';
-import { PHONE_LENGTH } from '../constants';
-import { validationPassword } from './validationPassword';
-import { EGRZ_MASK_LENGTH } from '../components/Inputs/EgrzInput';
-import { isObject } from './objectHelper';
-
 export const ERROR_REQUIRED_FIELD = 'Обязательное поле';
 
 export const HAS_REQUIRED_FIELDS_TEXT = 'Есть не заполненные поля';
 
+export const getError = ({ value, validImmediately }) => {
+  if (validImmediately && !value) {
+    return HAS_REQUIRED_FIELDS_TEXT;
+  }
+};
+
 export const VALIDATION_TEMPLATE = {
   email: 'email',
   phone: 'phone',
-  egrzMask: 'egrzMask',
   password: 'password',
   password_confirmation: 'password_confirmation',
   old_password: 'old_password',
@@ -61,7 +88,6 @@ const VALIDATION_ERROR = {
   array: 'Нужно выбрать хотя бы одно значение',
   email: 'Неверно введена электронная почта',
   phone: 'Номер телефона набран неверно',
-  egrzMask: 'ЕГРЗ ТС (Номер ТС) набран неверно',
   inn: 'ИНН набран неверно',
   password_confirmation: 'Пароли не совпадают',
 };
@@ -81,10 +107,6 @@ const localRuleTemplate = {
   phone: {
     valid: (item) => removeMaskSymbols(item)?.length === PHONE_LENGTH,
     text: VALIDATION_ERROR.phone,
-  },
-  egrzMask: {
-    valid: (item) => removeMaskSymbols(item)?.length === EGRZ_MASK_LENGTH,
-    text: VALIDATION_ERROR.egrzMask,
   },
   inn: {
     valid: (item, { subject_type }) => {

@@ -1,15 +1,30 @@
-export const isGlobalTest = !!localStorage.getItem('endToEndTests')
-const testList = []
-const testKeyboardTapTime = 300
+export const isGlobalTest = !!localStorage.getItem('endToEndTests');
+const testList = [];
+const testKeyboardTapTime = 300;
 
-export const bodyQuerySelector = (query) => document.body.querySelector(query)
-export const scrollToElement = (element) => element?.scrolIntoView({ behavior: "smooth", block: "end", inline: "nearest" })
+export const bodyQuerySelector = (query) => document.body.querySelector(query);
+export const scrollToElement = (element) => element?.scrolIntoView({ behavior: 'smooth', block: 'end', inline: 'nearest' });
+export const testIsRequestLoading = bodyQuerySelector('div[testId="backdrop-loader"]')?.ariaHidden === false;
 
-if (isGlobalTest) {
-  window.activeTestButton = (testName) => bodyQuerySelector('#test-button').onclick = window[testName]
-}
+export const testPromiseRequestLoading = async () => {
+  let intervalTimer;
 
-export const setNativeValue = async ({ element, value }) => {
+  const promise = new Promise((resolve) => {
+    intervalTimer = setInterval(() => {
+      if (!testIsRequestLoading) resolve();
+    }, 2000);
+  });
+
+  await promise;
+
+  clearInterval(intervalTimer);
+
+  console.log('loaded');
+
+  return promise;
+};
+
+export const asyncSetValue = async ({ element, value }) => {
   const valueSetter = Object.getOwnPropertyDescriptor(element, 'value').set;
   const prototype = Object.getPrototypeOf(element);
   const prototypeValueSetter = Object.getOwnPropertyDescriptor(prototype, 'value').set;
@@ -24,35 +39,18 @@ export const setNativeValue = async ({ element, value }) => {
 
   const delayPromise = new Promise((resolve) => {
     setTimeout(() => {
-      resolve()
-    }, testKeyboardTapTime)
-  })
+      resolve();
+    }, testKeyboardTapTime);
+  });
 
-  await delayPromise
-
-}
-
-export const testGetKeyboardKeys = async ({ keys, element }) => {
-  const splitKeys = keys.split('')
-
-  for await (const key of splitKeys) {
-    const keyboardTapPromise = new Promise((resolve) => {
-      setTimeout(() => {
-        element.focus()
-        element.dispatchEvent(new KeyboardEvent('keydown', { 'key': key }))
-        resolve()
-      }, testKeyboardTapTime)
-    })
-
-    await keyboardTapPromise
-  }
-}
+  await delayPromise;
+};
 
 export const setGlobalTest = (testName, testCallback, testCase) => {
   if (isGlobalTest) {
-    window[testName] = testCallback
-    testList.push(testName)
-    window.testList = testList
-    window[`${testName}Case`] = testCase
+    window[testName] = testCallback;
+    testList.push(testName);
+    window.testList = testList;
+    window[`${testName}Case`] = testCase;
   }
-}
+};

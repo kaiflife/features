@@ -2,17 +2,21 @@ export const isGlobalTest = !!localStorage.getItem('endToEndTests');
 const testList = [];
 const testKeyboardTapTime = 300;
 
-export const bodyQuerySelector = (query) => document.body.querySelector(query);
-export const scrollToElement = (element) => element?.scrolIntoView({ behavior: 'smooth', block: 'end', inline: 'nearest' });
-export const testIsRequestLoading = bodyQuerySelector('div[testId="backdrop-loader"]')?.ariaHidden === false;
+export const testIdSelector = (elementName = '', testId = '') => document.body
+  .querySelector(`${elementName}${testId ? `[testId="${testId}"]` : ''}`);
 
-export const testPromiseRequestLoading = async () => {
+export const scrollToElement = (element) => element?.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
+export const testIsRequestLoading = testIdSelector('div', 'backdrop-loader')?.ariaHidden === false;
+
+export const testPromiseRequestLoading = async (condition = testIsRequestLoading) => {
   let intervalTimer;
 
   const promise = new Promise((resolve) => {
     intervalTimer = setInterval(() => {
-      if (!testIsRequestLoading) resolve();
-    }, 2000);
+      if (typeof condition === 'function') {
+        if (condition()) resolve();
+      } else if (!condition) resolve();
+    }, 1000);
   });
 
   await promise;

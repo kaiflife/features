@@ -8,13 +8,19 @@ export const testIdSelector = (elementName = '', testId = '') => document.body
 export const scrollToElement = (element) => element?.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
 export const testIsRequestLoading = testIdSelector('div', 'backdrop-loader')?.ariaHidden === false;
 
-export const testFindChildNodes = (element, searchString) => {
-  let foundChild = Array.from(element.childNodes)
-    .find((item) => {
+export const testFindChildNodes = (element, searchItem) => {
+  const arrayFromChildNodes = Array.from(element.childNodes);
+  let foundChild;
+
+  if (searchItem?.index !== undefined) {
+    foundChild = arrayFromChildNodes.find((_, index) => (index + 1) === searchItem.index);
+  } else {
+    foundChild = arrayFromChildNodes.find((item) => {
       const lowerCaseItem = item?.dataset?.value?.toLowerCase?.();
 
-      return lowerCaseItem?.includes?.(searchString.toLowerCase());
+      return lowerCaseItem?.includes?.(searchItem.toLowerCase());
     });
+  }
 
   if (!foundChild) foundChild = element.firstChild;
 

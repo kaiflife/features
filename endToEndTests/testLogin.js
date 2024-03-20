@@ -1,4 +1,4 @@
-import { setNativeValue } from './testHelpers'
+import { bodyQuerySelector, setNativeValue } from './testHelpers'
 
 export const testLoginCase = {
   failure: {
@@ -13,15 +13,15 @@ export const testLoginCase = {
 
 export const testLogin = async (testCaseName = 'failure') => {
   console.log('testCaseName', testCaseName);
-  const emailInput = document.querySelector('input[name="email"]')
+  const emailInput = bodyQuerySelector('input[name="email"]')
 
   if (!emailInput) {
     alert('Нужно перейти на страницу логина')
     return
   }
 
-  const passwordInput = document.querySelector('input[name="password"]')
-  const submitButton = document.querySelector('button[type="submit"]')
+  const passwordInput = bodyQuerySelector('input[name="password"]')
+  const submitButton = bodyQuerySelector('button[type="submit"]')
 
   const { email, password } = window.testLoginCase[testCaseName]
 

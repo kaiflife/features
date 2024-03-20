@@ -2,8 +2,11 @@ export const isGlobalTest = !!localStorage.getItem('endToEndTests')
 const testList = []
 const testKeyboardTapTime = 300
 
+export const bodyQuerySelector = (query) => document.body.querySelector(query)
+export const scrollToElement = (element) => element?.scrolIntoView({ behavior: "smooth", block: "end", inline: "nearest" })
+
 if (isGlobalTest) {
-  window.activeTestButton = (testName) => document.body.querySelector('#test-button').onclick = window[testName]
+  window.activeTestButton = (testName) => bodyQuerySelector('#test-button').onclick = window[testName]
 }
 
 export const setNativeValue = async ({ element, value }) => {

@@ -12,6 +12,7 @@ if (isGlobalTest) {
   window.testGeneralData = {};
 
   window.startedTestName = '';
+  window.startedTestCaseName = '';
 }
 
 const testList = [];

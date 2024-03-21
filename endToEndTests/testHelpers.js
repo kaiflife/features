@@ -4,6 +4,12 @@ let event;
 if (isGlobalTest) {
   event = document.createEvent('HTMLEvents');
   event.initEvent('change', true, false);
+
+  // possible values for generalData
+  window.testDataBase = {};
+
+  // this values will take as default when case running for undefined value
+  window.testGeneralData = {};
 }
 
 const testList = [];
@@ -26,6 +32,11 @@ export const testIdSelect = (elementName = '', testId = '') => document.body
 
 export const scrollToElement = (element) => element?.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
 export const testIsRequestLoading = testIdSelect('div', 'backdrop-loader')?.ariaHidden === false;
+export const testGetMainCaseValue = (testCaseName, field) => {
+  if (window[testCaseName][field] === undefined) return window.testGeneralData[field];
+
+  return window[testCaseName][field];
+};
 
 export const testFindChildNode = (element, searchItem) => {
   const arrayFromChildNodes = Array.from(element.childNodes);
@@ -64,6 +75,22 @@ export const testPromiseRequestLoading = async (condition = testIsRequestLoading
   console.log('loaded');
 
   return promise;
+};
+
+// work only with MUI selector and TextField select
+export const testChangeSelectorValue = async (selectorName, testCaseName) => {
+  const element = testIdSelect('button', selectorName);
+  scrollToElement(element.parentElement);
+  element.click();
+  const list = document.querySelector(`ul[aria-labelledby="${selectorName}-label"]`);
+
+  const foundChild = testFindChildNode(
+    list,
+    window.testRequestCase[testCaseName][selectorName],
+  );
+
+  foundChild.click();
+  await testPromiseRequestLoading(() => !document.querySelector(`ul[aria-labelledby="${selectorName}-label"]`));
 };
 
 export const asyncSetValue = async (element, value) => {

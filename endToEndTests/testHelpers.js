@@ -7,6 +7,7 @@ if (isGlobalTest) {
 
   // possible values for generalData
   window.testDataBase = {};
+  window.testList = [];
 
   // this values will take as default when case running for undefined value
   window.testGeneralData = {
@@ -16,8 +17,6 @@ if (isGlobalTest) {
   window.startedTestName = '';
   window.startedTestCaseName = '';
 }
-
-const testList = [];
 
 const getFileType = (type) => {
   if (type.includes('pdf')) return 'pdf';
@@ -164,8 +163,7 @@ export const asyncSetValue = async (testId, newValue) => {
 export const setGlobalTest = (testName, testCallback, testCase) => {
   if (isGlobalTest) {
     window[testName] = testCallback;
-    testList.push(testName);
-    window.testList = testList;
+    window.testList.push(testName);
     window[`${testName}Case`] = testCase;
   }
 };

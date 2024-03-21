@@ -10,10 +10,12 @@ if (isGlobalTest) {
 
   // this values will take as default when case running for undefined value
   window.testGeneralData = {};
+
+  window.startedTestName = '';
 }
 
 const testList = [];
-const testKeyboardTapTime = 300;
+const testKeyboardTapTime = 150;
 const getFileType = (type) => {
   if (type.includes('pdf')) return 'pdf';
   if (type.includes('doc')) return 'doc';
@@ -32,10 +34,15 @@ export const testIdSelect = (elementName = '', testId = '') => document.body
 
 export const scrollToElement = (element) => element?.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
 export const testIsRequestLoading = testIdSelect('div', 'backdrop-loader')?.ariaHidden === false;
-export const testGetMainCaseValue = (testCaseName, field) => {
-  if (window[testCaseName][field] === undefined) return window.testGeneralData[field];
+export const testGetMainCaseValue = (field) => {
+  const startedCaseName = `${window.startedTestName}Case`;
+  const testCaseName = window.startedTestCaseName;
 
-  return window[testCaseName][field];
+  if (window[startedCaseName][testCaseName][field] === undefined) {
+    return window.testGeneralData[field];
+  }
+
+  return window[startedCaseName][testCaseName][field];
 };
 
 export const testFindChildNode = (element, searchItem) => {
@@ -65,20 +72,18 @@ export const testPromiseRequestLoading = async (condition = testIsRequestLoading
       if (typeof condition === 'function') {
         if (condition()) resolve();
       } else if (!condition) resolve();
-    }, 1000);
+    }, testKeyboardTapTime);
   });
 
   await promise;
 
   clearInterval(intervalTimer);
 
-  console.log('loaded');
-
   return promise;
 };
 
 // work only with MUI selector and TextField select
-export const testChangeSelectorValue = async (selectorName, testCaseName) => {
+export const testChangeSelectorValue = async (selectorName) => {
   const element = testIdSelect('button', selectorName);
   scrollToElement(element.parentElement);
   element.click();
@@ -86,7 +91,7 @@ export const testChangeSelectorValue = async (selectorName, testCaseName) => {
 
   const foundChild = testFindChildNode(
     list,
-    window.testRequestCase[testCaseName][selectorName],
+    testGetMainCaseValue(selectorName),
   );
 
   foundChild.click();
@@ -97,7 +102,7 @@ export const asyncSetValue = async (element, value) => {
   const typeValue = 'value';
 
   if (element.type === 'checkbox') {
-    element.click();
+    if (element.checked !== value) element.click();
   } else {
     const valueSetter = Object.getOwnPropertyDescriptor(element, typeValue).set;
     const prototype = Object.getPrototypeOf(element);

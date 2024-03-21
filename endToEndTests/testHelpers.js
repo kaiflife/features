@@ -1,6 +1,10 @@
 export const isGlobalTest = !!localStorage.getItem('endToEndTests');
 // for React library we need to add SyntethicEvent
-const event = document.createEvent('HTMLEvents');
+let event;
+if (isGlobalTest) {
+  event = document.createEvent('HTMLEvents');
+  event.initEvent('change', true, false);
+}
 
 const testList = [];
 const testKeyboardTapTime = 300;
@@ -63,17 +67,27 @@ export const testPromiseRequestLoading = async (condition = testIsRequestLoading
 };
 
 export const asyncSetValue = async (element, value) => {
-  const valueSetter = Object.getOwnPropertyDescriptor(element, 'value').set;
-  const prototype = Object.getPrototypeOf(element);
-  const prototypeValueSetter = Object.getOwnPropertyDescriptor(prototype, 'value').set;
+  const typeValue = 'value';
 
-  if (valueSetter && valueSetter !== prototypeValueSetter) {
-    prototypeValueSetter.call(element, value);
+  if (element.type === 'checkbox') {
+    element.click();
   } else {
-    valueSetter.call(element, value);
-  }
+    const valueSetter = Object.getOwnPropertyDescriptor(element, typeValue).set;
+    const prototype = Object.getPrototypeOf(element);
+    const prototypeValueSetter = Object.getOwnPropertyDescriptor(prototype, typeValue).set;
 
-  element.dispatchEvent(new Event('input', { bubbles: true }));
+    if (valueSetter && valueSetter !== prototypeValueSetter) {
+      prototypeValueSetter.call(element, value);
+    } else {
+      valueSetter.call(element, value);
+    }
+
+    // native event
+    // element.dispatchEvent(new Event('input', { bubbles: true }));
+
+    // React event
+    element.dispatchEvent(event);
+  }
 
   const delayPromise = new Promise((resolve) => {
     setTimeout(() => {
@@ -94,8 +108,6 @@ export const testAddFiles = async (fileLink, inputElement) => {
   const file_list = dt.files;
 
   inputElement.files = file_list;
-
-  event.initEvent('change', true, false);
 
   inputElement.dispatchEvent(event);
 };

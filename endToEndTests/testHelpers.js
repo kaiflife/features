@@ -11,12 +11,22 @@ if (isGlobalTest) {
 
   // this values will take as default when case running for undefined value
   window.testGeneralData = {
-    testKeyboardTapTime: 400,
+    testKeyboardTapTime: 150,
   };
 
   window.startedTestName = '';
   window.startedTestCaseName = '';
 }
+
+export const getEnumsFromArray = (array) => {
+  const object = {};
+
+  array.forEach((itemName) => {
+    object[itemName] = itemName;
+  });
+
+  return object;
+};
 
 const getFileType = (type) => {
   if (type.includes('pdf')) return 'pdf';
@@ -162,12 +172,9 @@ export const asyncSetValue = async (testId, newValue) => {
 
 export const setGlobalTest = (testName, testCallback, testCase) => {
   if (isGlobalTest) {
-    window[`${testName}CaseList`] = {};
+    window[`${testName}CaseList`] = getEnumsFromArray(Object.keys(testCase));
     window[testName] = testCallback;
     window.testList.push(testName);
     window[`${testName}Case`] = testCase;
-    Object.keys(testCase).forEach((caseName) => {
-      window[`${testName}CaseList`][caseName] = caseName;
-    });
   }
 };

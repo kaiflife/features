@@ -1,14 +1,29 @@
 export const isGlobalTest = !!localStorage.getItem('endToEndTests');
+// for React library we need to add SyntethicEvent
+const event = document.createEvent('HTMLEvents');
+
 const testList = [];
 const testKeyboardTapTime = 300;
+const getFileType = (type) => {
+  if (type.includes('pdf')) return 'pdf';
+  if (type.includes('doc')) return 'doc';
+  if (type.includes('docx')) return 'docx';
+  if (type.includes('txt')) return 'txt';
+  if (type.includes('png')) return 'png';
+  if (type.includes('jpg')) return 'jpg';
+  if (type.includes('jpeg')) return 'jpeg';
+  if (type.includes('xlsx')) return 'xlsx';
 
-export const testIdSelector = (elementName = '', testId = '') => document.body
+  return 'txt';
+};
+
+export const testIdSelect = (elementName = '', testId = '') => document.body
   .querySelector(`${elementName}${testId ? `[testId="${testId}"]` : ''}`);
 
 export const scrollToElement = (element) => element?.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
-export const testIsRequestLoading = testIdSelector('div', 'backdrop-loader')?.ariaHidden === false;
+export const testIsRequestLoading = testIdSelect('div', 'backdrop-loader')?.ariaHidden === false;
 
-export const testFindChildNodes = (element, searchItem) => {
+export const testFindChildNode = (element, searchItem) => {
   const arrayFromChildNodes = Array.from(element.childNodes);
   let foundChild;
 
@@ -47,7 +62,7 @@ export const testPromiseRequestLoading = async (condition = testIsRequestLoading
   return promise;
 };
 
-export const asyncSetValue = async ({ element, value }) => {
+export const asyncSetValue = async (element, value) => {
   const valueSetter = Object.getOwnPropertyDescriptor(element, 'value').set;
   const prototype = Object.getPrototypeOf(element);
   const prototypeValueSetter = Object.getOwnPropertyDescriptor(prototype, 'value').set;
@@ -67,6 +82,22 @@ export const asyncSetValue = async ({ element, value }) => {
   });
 
   await delayPromise;
+};
+
+export const testAddFiles = async (fileLink, inputElement) => {
+  const file = await fetch(fileLink);
+
+  const blobFile = await file.blob();
+
+  const dt = new DataTransfer();
+  dt.items.add(new File([blobFile], `testFile.${getFileType(blobFile.type)}`, { type: blobFile.type }));
+  const file_list = dt.files;
+
+  inputElement.files = file_list;
+
+  event.initEvent('change', true, false);
+
+  inputElement.dispatchEvent(event);
 };
 
 export const setGlobalTest = (testName, testCallback, testCase) => {

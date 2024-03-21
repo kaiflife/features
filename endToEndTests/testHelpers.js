@@ -9,14 +9,16 @@ if (isGlobalTest) {
   window.testDataBase = {};
 
   // this values will take as default when case running for undefined value
-  window.testGeneralData = {};
+  window.testGeneralData = {
+    testKeyboardTapTime: 400,
+  };
 
   window.startedTestName = '';
   window.startedTestCaseName = '';
 }
 
 const testList = [];
-const testKeyboardTapTime = 150;
+
 const getFileType = (type) => {
   if (type.includes('pdf')) return 'pdf';
   if (type.includes('doc')) return 'doc';
@@ -34,7 +36,7 @@ export const testIdSelect = (testId = '', elementName = '') => document.body
   .querySelector(`${elementName}${testId ? `[testId="${testId}"]` : ''}`);
 
 export const scrollToElement = (element) => element?.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
-export const testIsRequestLoading = testIdSelect('div', 'backdrop-loader')?.ariaHidden === false;
+export const testIsRequestLoading = testIdSelect('backdrop-loader')?.ariaHidden === false;
 export const testGetMainCaseValue = (field) => {
   const startedCaseName = `${window.startedTestName}Case`;
   const testCaseName = window.startedTestCaseName;
@@ -79,7 +81,7 @@ export const testPromiseRequestLoading = async (condition = testIsRequestLoading
       if (typeof condition === 'function') {
         if (condition()) resolve();
       } else if (!condition) resolve();
-    }, testKeyboardTapTime);
+    }, window.testGeneralData.testKeyboardTapTime);
   });
 
   await promise;
@@ -91,7 +93,7 @@ export const testPromiseRequestLoading = async (condition = testIsRequestLoading
 
 // work only with MUI selector and TextField select
 export const testChangeSelectorValue = async (selectorName) => {
-  const element = testIdSelect('button', selectorName);
+  const element = testIdSelect(selectorName, 'button');
   scrollToElement(element.parentElement);
   element.click();
   const list = document.querySelector(`ul[aria-labelledby="${selectorName}-label"]`);
@@ -105,14 +107,30 @@ export const testChangeSelectorValue = async (selectorName) => {
   await testPromiseRequestLoading(() => !document.querySelector(`ul[aria-labelledby="${selectorName}-label"]`));
 };
 
+export const testAddFiles = async (fileLink, inputElement) => {
+  const file = await fetch(fileLink);
+
+  const blobFile = await file.blob();
+
+  const dt = new DataTransfer();
+  dt.items.add(new File([blobFile], `testFile.${getFileType(blobFile.type)}`, { type: blobFile.type }));
+  const file_list = dt.files;
+
+  inputElement.files = file_list;
+
+  inputElement.dispatchEvent(event);
+};
+
 export const asyncSetValue = async (testId, newValue) => {
   const typeValue = 'value';
 
-  const element = testIdSelect('input', testId);
+  const element = testIdSelect(testId);
 
   const value = newValue || testGetMainCaseValue(testId);
 
-  if (element.type === 'file') {
+  if (element?.className?.toLocaleLowerCase?.()?.includes?.('selector')) {
+    testChangeSelectorValue(testId);
+  } else if (element.type === 'file') {
     testAddFiles(value, element);
   } else if (element.type === 'checkbox') {
     if (element.checked !== value) element.click();
@@ -137,24 +155,10 @@ export const asyncSetValue = async (testId, newValue) => {
   const delayPromise = new Promise((resolve) => {
     setTimeout(() => {
       resolve();
-    }, testKeyboardTapTime);
+    }, window.testGeneralData.testKeyboardTapTime);
   });
 
   await delayPromise;
-};
-
-export const testAddFiles = async (fileLink, inputElement) => {
-  const file = await fetch(fileLink);
-
-  const blobFile = await file.blob();
-
-  const dt = new DataTransfer();
-  dt.items.add(new File([blobFile], `testFile.${getFileType(blobFile.type)}`, { type: blobFile.type }));
-  const file_list = dt.files;
-
-  inputElement.files = file_list;
-
-  inputElement.dispatchEvent(event);
 };
 
 export const setGlobalTest = (testName, testCallback, testCase) => {

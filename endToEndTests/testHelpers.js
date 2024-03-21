@@ -30,7 +30,7 @@ const getFileType = (type) => {
   return 'txt';
 };
 
-export const testIdSelect = (elementName = '', testId = '') => document.body
+export const testIdSelect = (testId = '', elementName = '') => document.body
   .querySelector(`${elementName}${testId ? `[testId="${testId}"]` : ''}`);
 
 export const scrollToElement = (element) => element?.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
@@ -44,6 +44,12 @@ export const testGetMainCaseValue = (field) => {
   }
 
   return window[startedCaseName][testCaseName][field];
+};
+
+export const testClickElement = (testId, elementName) => {
+  const element = testIdSelect(testId, elementName);
+
+  element.click();
 };
 
 export const testFindChildNode = (element, searchItem) => {
@@ -99,10 +105,16 @@ export const testChangeSelectorValue = async (selectorName) => {
   await testPromiseRequestLoading(() => !document.querySelector(`ul[aria-labelledby="${selectorName}-label"]`));
 };
 
-export const asyncSetValue = async (element, value) => {
+export const asyncSetValue = async (testId, newValue) => {
   const typeValue = 'value';
 
-  if (element.type === 'checkbox') {
+  const element = testIdSelect('input', testId);
+
+  const value = newValue || testGetMainCaseValue(testId);
+
+  if (element.type === 'file') {
+    testAddFiles(value, element);
+  } else if (element.type === 'checkbox') {
     if (element.checked !== value) element.click();
   } else {
     const valueSetter = Object.getOwnPropertyDescriptor(element, typeValue).set;

@@ -1,205 +1,43 @@
-export const isGlobalTest = !!localStorage.getItem('endToEndTests');
-// for React library we need to add SyntheticEvent
-let event;
+/* eslint-disable prefer-destructuring */
+import {
+  getEnumsFromArray, isGlobalTest, setGlobalTest,
+} from './testHelpers';
+import { testLogin, testLoginCase } from './testLogin';
+import { testReport, testReportCase } from './testReport';
+import { testRequest, testRequestCase } from './testRequest';
+
+const testFile1Pdf = require('./testFile1.pdf');
+
 if (isGlobalTest) {
-  event = document.createEvent('HTMLEvents');
-  event.initEvent('change', true, false);
+  window.testDataBase.phones = getEnumsFromArray(['6633214011', '9536478523', '9654123985', '9101111111', '3333333334']);
+  window.testDataBase.comments = getEnumsFromArray(['test123']);
 
-  // possible values for generalData
-  window.testDataBase = {};
-  window.testList = [];
-
-  // this values will take as default when case running for undefined value
   window.testGeneralData = {
-    testKeyboardTapTime: 300,
+    'phone-input': window.testDataBase.phones['6633214011'],
+    comment: window.testDataBase.comments.test123,
+    shouldCreateRequest: false,
+    reverseAddress: false,
+    time: '10:50',
+    file: testFile1Pdf,
+    vehicleTypeId: { index: 1 },
+    format: { index: 1 },
+    reportStartDate: {
+      min: true,
+    },
+    reportEndDate: {
+      max: true,
+    },
+    convoy: true,
+    isGroupRequest: false,
+    isDirection: false,
+    changePhonePassenger: false,
+    endpoint_type: { index: 2 },
+    vehicle_type: 'Специальное ТС',
+    endpoint: { index: 3 },
+    ...window.testGeneralData,
   };
-
-  window.startedTestName = '';
-  window.startedTestCaseName = '';
 }
-const testCaseFieldName = 'Сценарий';
-const testDate = new Date();
-const addZeroToDate = (date) => (`00${String(date)}`).slice(-2);
 
-export const testYear = testDate.getFullYear();
-export const testMonth = testDate.getMonth() + 1;
-export const testDay = testDate.getDate();
-export const getTestDate = ({
-  year = testYear,
-  month = testMonth,
-  day = testDay,
-}) => `${year}-${addZeroToDate(month)}-${addZeroToDate(day)}`;
-
-export const getEnumsFromArray = (array) => {
-  const object = {};
-
-  array.forEach((itemName) => {
-    object[itemName] = itemName;
-  });
-
-  return object;
-};
-
-const getFileType = (type) => {
-  if (type.includes('pdf')) return 'pdf';
-  if (type.includes('doc')) return 'doc';
-  if (type.includes('docx')) return 'docx';
-  if (type.includes('txt')) return 'txt';
-  if (type.includes('png')) return 'png';
-  if (type.includes('jpg')) return 'jpg';
-  if (type.includes('jpeg')) return 'jpeg';
-  if (type.includes('xlsx')) return 'xlsx';
-
-  return 'txt';
-};
-
-export const testIdSelect = (testId = '', elementName = '') => document.body
-  .querySelector(`${elementName}${testId ? `[testId="${testId}"]` : ''}`);
-
-export const scrollToElement = (element) => element?.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
-export const testIsRequestLoading = testIdSelect('backdrop-loader')?.ariaHidden === false;
-export const testGetMainCaseValue = (field) => {
-  const startedCaseName = `${window.startedTestName}${testCaseFieldName}`;
-  const testCaseName = window.startedTestCaseName;
-
-  if (window[startedCaseName][testCaseName][field] === undefined) {
-    return window.testGeneralData[field];
-  }
-
-  return window[startedCaseName][testCaseName][field];
-};
-
-export const testClickElement = (testId, elementName) => {
-  const element = testIdSelect(testId, elementName);
-
-  element.click();
-};
-
-export const testFindChildNode = (element, searchItem) => {
-  const arrayFromChildNodes = Array.from(element.childNodes);
-  let foundChild;
-
-  if (searchItem?.index !== undefined) {
-    foundChild = arrayFromChildNodes.find((_, index) => (index + 1) === searchItem.index);
-  } else {
-    foundChild = arrayFromChildNodes.find((item) => {
-      const lowerCaseItem = item?.outerText?.toLowerCase?.();
-
-      return lowerCaseItem?.includes?.(searchItem.toLowerCase());
-    });
-  }
-
-  if (!foundChild) foundChild = element.firstChild;
-
-  return foundChild;
-};
-
-export const testPromiseRequestLoading = async (condition = testIsRequestLoading) => {
-  let intervalTimer;
-
-  const promise = new Promise((resolve) => {
-    intervalTimer = setInterval(() => {
-      if (typeof condition === 'function') {
-        if (condition()) resolve();
-      } else if (!condition) resolve();
-    }, window.testGeneralData.testKeyboardTapTime);
-  });
-
-  await promise;
-
-  clearInterval(intervalTimer);
-
-  return promise;
-};
-
-// work only with MUI selector and TextField select
-export const testChangeSelectorValue = async (selectorName) => {
-  const element = testIdSelect(selectorName, 'button');
-  scrollToElement(element.parentElement);
-  element.click();
-
-  const list = document.querySelector(`ul[aria-labelledby="${selectorName}-label"]`);
-
-  const foundChild = testFindChildNode(
-    list,
-    testGetMainCaseValue(selectorName),
-  );
-
-  foundChild.click();
-  await testPromiseRequestLoading(() => !document.querySelector(`ul[aria-labelledby="${selectorName}-label"]`));
-};
-
-export const testAddFiles = async (fileLink, inputElement) => {
-  const file = await fetch(fileLink);
-
-  const blobFile = await file.blob();
-
-  const dt = new DataTransfer();
-  dt.items.add(new File([blobFile], `testFile.${getFileType(blobFile.type)}`, { type: blobFile.type }));
-  const file_list = dt.files;
-
-  inputElement.files = file_list;
-
-  inputElement.dispatchEvent(event);
-};
-
-export const asyncSetValue = async (testId, newValue) => {
-  const typeValue = 'value';
-
-  const element = testIdSelect(testId);
-
-  if (!element) return;
-
-  let value = newValue || testGetMainCaseValue(testId);
-
-  if (value?.min) value = element.min || getTestDate({});
-  else if (value?.max) {
-    value = element.max || getTestDate({ day: testDay + 1 });
-  }
-
-  if (element?.className?.toLocaleLowerCase?.()?.includes?.('selector')) {
-    testChangeSelectorValue(testId);
-  } else if (element.type === 'file') {
-    testAddFiles(value, element);
-  } else if (element.type === 'checkbox') {
-    if (element.checked !== value) element.click();
-  } else {
-    const valueSetter = Object.getOwnPropertyDescriptor(element, typeValue).set;
-    const prototype = Object.getPrototypeOf(element);
-    const prototypeValueSetter = Object.getOwnPropertyDescriptor(prototype, typeValue).set;
-
-    if (valueSetter && valueSetter !== prototypeValueSetter) {
-      prototypeValueSetter.call(element, value);
-    } else {
-      valueSetter.call(element, value);
-    }
-
-    // native event
-    // element.dispatchEvent(new Event('input', { bubbles: true }));
-
-    // React event
-    element.dispatchEvent(event);
-  }
-
-  const delayPromise = new Promise((resolve) => {
-    setTimeout(() => {
-      resolve();
-    }, window.testGeneralData.testKeyboardTapTime);
-  });
-
-  await delayPromise;
-};
-
-export const setGlobalTest = (testName, testCallback, testCase) => {
-  if (isGlobalTest) {
-    Object.keys(testCase).forEach((caseName) => {
-      window[`${testName}${caseName}`] = () => {
-        window.startedTestName = testName;
-        window.startedTestCaseName = caseName;
-        testCallback();
-      };
-    });
-    window.testList.push(testName);
-    window[`${testName}${testCaseFieldName}`] = testCase;
-  }
-};
+setGlobalTest('тестЛогина', testLogin, testLoginCase);
+setGlobalTest('тестЗаявка', testRequest, testRequestCase);
+setGlobalTest('тестОтчёта', testReport, testReportCase);

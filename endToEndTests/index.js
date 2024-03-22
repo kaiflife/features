@@ -15,7 +15,7 @@ if (isGlobalTest) {
   window.testGeneralData = {
     'phone-input': window.testDataBase.phones['6633214011'],
     comment: window.testDataBase.comments.test123,
-    shouldCreateRequest: false,
+    shouldCreateRequest: true,
     reverseAddress: false,
     time: '10:50',
     file: testFile1Pdf,

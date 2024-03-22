@@ -1,11 +1,11 @@
 import { testIdSelect, asyncSetValue } from './testHelpers';
 
 export const testLoginCase = {
-  failure: {
+  Ошибка: {
     email: 'qwe',
     password: 'qwe',
   },
-  success: {
+  Успех: {
     email: 'email@mail.com',
     password: 'qwe2',
   },

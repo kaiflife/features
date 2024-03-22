@@ -193,7 +193,11 @@ export const asyncSetValue = async (testId, newValue) => {
 export const setGlobalTest = (testName, testCallback, testCase) => {
   if (isGlobalTest) {
     Object.keys(testCase).forEach((caseName) => {
-      window[`${testName}${caseName}`] = () => testCallback(caseName);
+      window[`${testName}${caseName}`] = () => {
+        window.startedTestName = testName;
+        window.startedTestCaseName = caseName;
+        testCallback();
+      };
     });
     window.testList.push(testName);
     window[`${testName}${testCaseFieldName}`] = testCase;

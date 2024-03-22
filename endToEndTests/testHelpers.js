@@ -1,5 +1,5 @@
 export const isGlobalTest = !!localStorage.getItem('endToEndTests');
-// for React library we need to add SyntethicEvent
+// for React library we need to add SyntheticEvent
 let event;
 if (isGlobalTest) {
   event = document.createEvent('HTMLEvents');
@@ -11,12 +11,23 @@ if (isGlobalTest) {
 
   // this values will take as default when case running for undefined value
   window.testGeneralData = {
-    testKeyboardTapTime: 150,
+    testKeyboardTapTime: 300,
   };
 
   window.startedTestName = '';
   window.startedTestCaseName = '';
 }
+const testDate = new Date();
+const addZeroToDate = (date) => (`00${String(date)}`).slice(-2);
+
+export const testYear = testDate.getFullYear();
+export const testMonth = testDate.getMonth() + 1;
+export const testDay = testDate.getDate();
+export const getTestDate = ({
+  year = testYear,
+  month = testMonth,
+  day = testDay,
+}) => `${year}-${addZeroToDate(month)}-${addZeroToDate(day)}`;
 
 export const getEnumsFromArray = (array) => {
   const object = {};
@@ -71,7 +82,7 @@ export const testFindChildNode = (element, searchItem) => {
     foundChild = arrayFromChildNodes.find((_, index) => (index + 1) === searchItem.index);
   } else {
     foundChild = arrayFromChildNodes.find((item) => {
-      const lowerCaseItem = item?.dataset?.value?.toLowerCase?.();
+      const lowerCaseItem = item?.outerText?.toLowerCase?.();
 
       return lowerCaseItem?.includes?.(searchItem.toLowerCase());
     });
@@ -105,6 +116,7 @@ export const testChangeSelectorValue = async (selectorName) => {
   const element = testIdSelect(selectorName, 'button');
   scrollToElement(element.parentElement);
   element.click();
+
   const list = document.querySelector(`ul[aria-labelledby="${selectorName}-label"]`);
 
   const foundChild = testFindChildNode(
@@ -135,7 +147,14 @@ export const asyncSetValue = async (testId, newValue) => {
 
   const element = testIdSelect(testId);
 
-  const value = newValue || testGetMainCaseValue(testId);
+  if (!element) return;
+
+  let value = newValue || testGetMainCaseValue(testId);
+
+  if (value?.min) value = element.min || getTestDate({});
+  else if (value?.max) {
+    value = element.max || getTestDate({ day: testDay + 1 });
+  }
 
   if (element?.className?.toLocaleLowerCase?.()?.includes?.('selector')) {
     testChangeSelectorValue(testId);

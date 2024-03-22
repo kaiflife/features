@@ -38,6 +38,6 @@ if (isGlobalTest) {
   };
 }
 
-setGlobalTest('testLogin', testLogin, testLoginCase);
-setGlobalTest('testRequest', testRequest, testRequestCase);
-setGlobalTest('testReport', testReport, testReportCase);
+setGlobalTest('тестЛогина', testLogin, testLoginCase);
+setGlobalTest('тестЗаявка', testRequest, testRequestCase);
+setGlobalTest('тестОтчёта', testReport, testReportCase);

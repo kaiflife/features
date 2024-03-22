@@ -17,6 +17,7 @@ if (isGlobalTest) {
   window.startedTestName = '';
   window.startedTestCaseName = '';
 }
+const testCaseFieldName = 'Сценарий';
 const testDate = new Date();
 const addZeroToDate = (date) => (`00${String(date)}`).slice(-2);
 
@@ -58,7 +59,7 @@ export const testIdSelect = (testId = '', elementName = '') => document.body
 export const scrollToElement = (element) => element?.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
 export const testIsRequestLoading = testIdSelect('backdrop-loader')?.ariaHidden === false;
 export const testGetMainCaseValue = (field) => {
-  const startedCaseName = `${window.startedTestName}Case`;
+  const startedCaseName = `${window.startedTestName}${testCaseFieldName}`;
   const testCaseName = window.startedTestCaseName;
 
   if (window[startedCaseName][testCaseName][field] === undefined) {
@@ -191,9 +192,10 @@ export const asyncSetValue = async (testId, newValue) => {
 
 export const setGlobalTest = (testName, testCallback, testCase) => {
   if (isGlobalTest) {
-    window[`${testName}CaseList`] = getEnumsFromArray(Object.keys(testCase));
-    window[testName] = testCallback;
+    Object.keys(testCase).forEach((caseName) => {
+      window[`${testName}${caseName}`] = () => testCallback(caseName);
+    });
     window.testList.push(testName);
-    window[`${testName}Case`] = testCase;
+    window[`${testName}${testCaseFieldName}`] = testCase;
   }
 };

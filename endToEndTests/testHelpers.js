@@ -1,4 +1,22 @@
-export const isGlobalTest = !!localStorage.getItem('endToEndTests');
+const globalTestName = 'endToEndTests';
+export const testCaseFieldName = 'Сценарий';
+export const testListName = 'тестЛист';
+export const testDataBaseName = 'тестБазаДанных';
+export const testGeneralDataName = 'тестОсновныеДанные';
+export const testStartedTestName = 'тестЗапущенный';
+export const testStartedTestCaseName = 'тестЗапущенныйСценарий';
+
+export const isGlobalTest = !!localStorage.getItem(globalTestName);
+
+window.enableGlobalTest = () => {
+  localStorage.setItem(globalTestName, true);
+  window.location.reload();
+};
+window.disableGlobalTest = () => {
+  localStorage.removeItem(globalTestName);
+  window.location.reload();
+};
+
 // for React library we need to add SyntheticEvent
 let event;
 if (isGlobalTest) {
@@ -6,18 +24,17 @@ if (isGlobalTest) {
   event.initEvent('change', true, false);
 
   // possible values for generalData
-  window.testDataBase = {};
-  window.testList = [];
+  window[testDataBaseName] = {};
+  window[testListName] = [];
 
   // this values will take as default when case running for undefined value
-  window.testGeneralData = {
+  window[testGeneralDataName] = {
     testKeyboardTapTime: 300,
   };
 
-  window.startedTestName = '';
-  window.startedTestCaseName = '';
+  window[testStartedTestName] = '';
+  window[testStartedTestCaseName] = '';
 }
-const testCaseFieldName = 'Сценарий';
 const testDate = new Date();
 const addZeroToDate = (date) => (`00${String(date)}`).slice(-2);
 
@@ -59,11 +76,11 @@ export const testIdSelect = (testId = '', elementName = '') => document.body
 export const scrollToElement = (element) => element?.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
 export const testIsRequestLoading = testIdSelect('backdrop-loader')?.ariaHidden === false;
 export const testGetMainCaseValue = (field) => {
-  const startedCaseName = `${window.startedTestName}${testCaseFieldName}`;
-  const testCaseName = window.startedTestCaseName;
+  const startedCaseName = `${window[testStartedTestName]}${testCaseFieldName}`;
+  const testCaseName = window[testStartedTestCaseName];
 
   if (window[startedCaseName][testCaseName][field] === undefined) {
-    return window.testGeneralData[field];
+    return window[testGeneralDataName][field];
   }
 
   return window[startedCaseName][testCaseName][field];
@@ -102,7 +119,7 @@ export const testPromiseRequestLoading = async (condition = testIsRequestLoading
       if (typeof condition === 'function') {
         if (condition()) resolve();
       } else if (!condition) resolve();
-    }, window.testGeneralData.testKeyboardTapTime);
+    }, window[testGeneralDataName].testKeyboardTapTime);
   });
 
   await promise;
@@ -184,7 +201,7 @@ export const asyncSetValue = async (testId, newValue) => {
   const delayPromise = new Promise((resolve) => {
     setTimeout(() => {
       resolve();
-    }, window.testGeneralData.testKeyboardTapTime);
+    }, window[testGeneralDataName].testKeyboardTapTime);
   });
 
   await delayPromise;
@@ -194,12 +211,12 @@ export const setGlobalTest = (testName, testCallback, testCase) => {
   if (isGlobalTest) {
     Object.keys(testCase).forEach((caseName) => {
       window[`${testName}${caseName}`] = () => {
-        window.startedTestName = testName;
-        window.startedTestCaseName = caseName;
+        window[testStartedTestName] = testName;
+        window[testStartedTestCaseName] = caseName;
         testCallback();
       };
     });
-    window.testList.push(testName);
+    window[testListName].push(testName);
     window[`${testName}${testCaseFieldName}`] = testCase;
   }
 };

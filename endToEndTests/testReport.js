@@ -33,10 +33,7 @@ const testOpenCreateReportModal = () => {
   button.click();
 };
 
-export const testReport = async (testCaseName = Object.keys(testReportCase)[0]) => {
-  window.startedTestName = 'тестОтчёта';
-  window.startedTestCaseName = testCaseName;
-
+export const testReport = async () => {
   testOpenCreateReportModal();
 
   await asyncSetValue('reportType');

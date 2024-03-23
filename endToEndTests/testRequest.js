@@ -143,7 +143,9 @@ const testPassenger = async () => {
   testClickElement('search-passenger-button');
 };
 
-export const testRequest = async (testCaseName = Object.keys(testRequestCase)[0]) => {
+export const testRequest = async () => {
+  const testCaseName = window.startedTestCaseName;
+
   if (testCaseName.includes('Создание')) return testCreateRequest();
   if (testCaseName.includes('Пассажир')) return testPassenger();
 

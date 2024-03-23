@@ -1,8 +1,10 @@
 const globalTestName = 'endToEndTests';
 const testListName = 'тестЛист';
+const testListCaseName = 'тестЛистСцениариев';
 const testCaseFieldName = 'Сценарий';
 export const testDataBaseName = 'тестБазаДанных';
 export const testGeneralDataName = 'тестИспользуемыеДанные';
+export const testHelpListName = 'тест';
 
 export const isGlobalTest = !!localStorage.getItem(globalTestName);
 
@@ -21,13 +23,32 @@ if (isGlobalTest) {
   event = document.createEvent('HTMLEvents');
   event.initEvent('change', true, false);
 
-  // possible values for generalData
   window[testDataBaseName] = {};
   window[testListName] = [];
+  window[testListCaseName] = [];
 
   // this values will take as default when case running for undefined value
   window[testGeneralDataName] = {
     testKeyboardTapTime: 300,
+  };
+
+  window[testHelpListName] = {
+    [testDataBaseName]: {
+      инфо: 'Данные, которые можно использовать для тестирования',
+      данные: window[testDataBaseName],
+    },
+    [testListName]: {
+      инфо: 'Список тестов, которые можно запустить',
+      данные: window[testListName],
+    },
+    [testGeneralDataName]: {
+      инфо: `Данные, которые будут использоваться в тестах по умолчанию. Их можно заменить. Например ${testGeneralDataName}.phone = '09876543211'`,
+      данные: window[testGeneralDataName],
+    },
+    [testListCaseName]: {
+      инфо: 'Список сценариев, которые используются для тестов',
+      данные: window[testListCaseName],
+    },
   };
 
   window.startedTestName = '';
@@ -36,6 +57,11 @@ if (isGlobalTest) {
 const testDate = new Date();
 const addZeroToDate = (date) => (`00${String(date)}`).slice(-2);
 
+export const changeTestGeneralData = (object) => {
+  Object.keys(object).forEach((objectKey) => {
+    window[testGeneralDataName][objectKey] = object[objectKey];
+  });
+};
 export const testYear = testDate.getFullYear();
 export const testMonth = testDate.getMonth() + 1;
 export const testDay = testDate.getDate();
@@ -215,6 +241,7 @@ export const setGlobalTest = (testName, testCallback, testCase) => {
       };
     });
     window[testListName].push(testName);
+    window[testListCaseName].push(`${testName}${testCaseFieldName}`);
     window[`${testName}${testCaseFieldName}`] = testCase;
   }
 };

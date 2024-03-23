@@ -1,6 +1,7 @@
 /* eslint-disable prefer-destructuring */
 import {
-  getEnumsFromArray, isGlobalTest, setGlobalTest, testDataBaseName, testGeneralDataName,
+  changeTestGeneralData,
+  getEnumsFromArray, isGlobalTest, setGlobalTest, testDataBaseName,
 } from './testHelpers';
 import { testLogin, testLoginCase } from './testLogin';
 import { testReport, testReportCase } from './testReport';
@@ -13,7 +14,7 @@ if (isGlobalTest) {
   window[testDataBaseName].phones = getEnumsFromArray(['6633214011', '9536478523', '9654123985', '9101111111', '3333333334']);
   window[testDataBaseName].comments = getEnumsFromArray(['test123']);
 
-  window[testGeneralDataName] = {
+  changeTestGeneralData({
     'phone-input': window[testDataBaseName].phones['6633214011'],
     comment: window[testDataBaseName].comments.test123,
     shouldCreateRequest: false,
@@ -35,8 +36,7 @@ if (isGlobalTest) {
     endpoint_type: { index: 2 },
     vehicle_type: 'Специальное ТС',
     endpoint: { index: 3 },
-    ...window[testGeneralDataName],
-  };
+  });
 }
 
 setGlobalTest('тестЛогина', testLogin, testLoginCase);

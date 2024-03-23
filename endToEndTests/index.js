@@ -13,10 +13,10 @@ if (isGlobalTest) {
   window[testDataBaseName].phones = getEnumsFromArray(['6633214011', '9536478523', '9654123985', '9101111111', '3333333334']);
   window[testDataBaseName].comments = getEnumsFromArray(['test123']);
 
-  window.testGeneralData = {
+  window[testGeneralDataName] = {
     'phone-input': window[testDataBaseName].phones['6633214011'],
     comment: window[testDataBaseName].comments.test123,
-    shouldCreateRequest: true,
+    shouldCreateRequest: false,
     reverseAddress: false,
     time: '10:50',
     file: testFile1Pdf,

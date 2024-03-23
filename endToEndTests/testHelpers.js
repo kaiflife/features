@@ -1,10 +1,8 @@
 const globalTestName = 'endToEndTests';
-export const testCaseFieldName = 'Сценарий';
-export const testListName = 'тестЛист';
+const testListName = 'тестЛист';
+const testCaseFieldName = 'Сценарий';
 export const testDataBaseName = 'тестБазаДанных';
-export const testGeneralDataName = 'тестОсновныеДанные';
-export const testStartedTestName = 'тестЗапущенный';
-export const testStartedTestCaseName = 'тестЗапущенныйСценарий';
+export const testGeneralDataName = 'тестИспользуемыеДанные';
 
 export const isGlobalTest = !!localStorage.getItem(globalTestName);
 
@@ -32,8 +30,8 @@ if (isGlobalTest) {
     testKeyboardTapTime: 300,
   };
 
-  window[testStartedTestName] = '';
-  window[testStartedTestCaseName] = '';
+  window.startedTestName = '';
+  window.startedTestCaseName = '';
 }
 const testDate = new Date();
 const addZeroToDate = (date) => (`00${String(date)}`).slice(-2);
@@ -76,8 +74,8 @@ export const testIdSelect = (testId = '', elementName = '') => document.body
 export const scrollToElement = (element) => element?.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
 export const testIsRequestLoading = testIdSelect('backdrop-loader')?.ariaHidden === false;
 export const testGetMainCaseValue = (field) => {
-  const startedCaseName = `${window[testStartedTestName]}${testCaseFieldName}`;
-  const testCaseName = window[testStartedTestCaseName];
+  const startedCaseName = `${window.startedTestName}${testCaseFieldName}`;
+  const testCaseName = window.startedTestCaseName;
 
   if (window[startedCaseName][testCaseName][field] === undefined) {
     return window[testGeneralDataName][field];
@@ -211,8 +209,8 @@ export const setGlobalTest = (testName, testCallback, testCase) => {
   if (isGlobalTest) {
     Object.keys(testCase).forEach((caseName) => {
       window[`${testName}${caseName}`] = () => {
-        window[testStartedTestName] = testName;
-        window[testStartedTestCaseName] = caseName;
+        window.startedTestName = testName;
+        window.startedTestCaseName = caseName;
         testCallback();
       };
     });

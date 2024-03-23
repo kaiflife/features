@@ -7,7 +7,6 @@ import {
   testClickElement,
   getTestDate,
   testMonth,
-  testStartedTestCaseName,
 } from './testHelpers';
 
 export const testRequestCase = {
@@ -145,7 +144,7 @@ const testPassenger = async () => {
 };
 
 export const testRequest = async () => {
-  const testCaseName = window[testStartedTestCaseName];
+  const testCaseName = window.startedTestCaseName;
 
   if (testCaseName.includes('Создание')) return testCreateRequest();
   if (testCaseName.includes('Пассажир')) return testPassenger();

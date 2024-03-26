@@ -22,18 +22,6 @@ export const testRequestCase = {
   СозданиеНетСопровождающего: {
     convoy: false,
   },
-  ПассажирПоискФамилия: {
-    last_name: 'Экстра',
-  },
-  ПассажирПоискИмя: {
-    first_name: 'Тест',
-  },
-  ПассажирПоискОтчество: {
-    patronymic: 'Категория',
-  },
-  ПассажирПоискДеньРождения: {
-    date_of_birth: '1995-08-16',
-  },
   СозданиеДети1Группы: {
     'phone-input': '9654123985',
   },
@@ -60,6 +48,32 @@ export const testRequestCase = {
     isGroupRequest: true,
     changePhonePassenger: true,
   },
+  МодалкаПассажирПоискФамилия: {
+    last_name: 'Экстра',
+  },
+  МодалкаПассажирПоискИмя: {
+    first_name: 'Тест',
+  },
+  МодалкаПассажирПоискОтчество: {
+    patronymic: 'Категория',
+  },
+  МодалкаПассажирПоискДеньРождения: {
+    date_of_birth: '1995-08-16',
+  },
+  МодалкаПассажирИзменениеДанных: {
+    last_name: 'Экстра',
+    openEditPassenger: true,
+    changePassengerAddress: true,
+    confirmAddress: false,
+    street: {
+      search: 'Московская Большая ул.',
+      index: 1,
+    },
+    building: {
+      search: '3',
+      index: 1,
+    },
+  },
 };
 
 const testOpenCreateRequestModal = () => {
@@ -73,13 +87,25 @@ const testOpenCreateRequestModal = () => {
   button.click();
 };
 
-const testChangePhonePassenger = async () => {
-  testClickElement('changePhonePassenger');
+const testChangePassengerModal = async (openModalName = 'changePhonePassenger') => {
+  testClickElement(openModalName);
+
+  await testPromiseRequestLoading(() => !!testIdSelect('editPassengerModal'));
 
   const newPhoneElement = testIdSelect('changePhonePassengerInput');
   await asyncSetValue('changePhonePassengerInput', Number(removePhoneSymbols(newPhoneElement.value)) + 1);
 
-  testClickElement('updatePassenger');
+  if (testGetMainCaseValue('changePassengerAddress')) {
+    testClickElement('changeAddress');
+    await asyncSetValue('street');
+    await asyncSetValue('building');
+
+    const confirmAddressButton = testClickElement('confirmAddress');
+
+    if (testGetMainCaseValue('confirmAddress')) await testPromiseRequestLoading(() => !confirmAddressButton?.testid);
+  }
+
+  if (testGetMainCaseValue('shouldCreateRequest')) testClickElement('updatePassenger');
 };
 
 const testFindRequestPassenger = async () => {
@@ -100,7 +126,7 @@ const testFullFillRequest = async () => {
 
   await asyncSetValue('isDirection');
 
-  if (testGetMainCaseValue('changePhonePassenger')) await testChangePhonePassenger();
+  if (testGetMainCaseValue('changePhonePassenger')) await testChangePassengerModal();
 
   await asyncSetValue('convoy');
   await asyncSetValue('vehicle_type');
@@ -141,6 +167,12 @@ const testPassenger = async () => {
   if (testGetMainCaseValue('date_of_birth')) await asyncSetValue('date_of_birth');
 
   testClickElement('search-passenger-button');
+
+  await testPromiseRequestLoading();
+
+  if (testGetMainCaseValue('openEditPassenger')) {
+    await testChangePassengerModal('openEditPassenger');
+  }
 };
 
 export const testRequest = async () => {

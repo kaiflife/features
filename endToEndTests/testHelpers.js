@@ -2,17 +2,19 @@ const globalTestName = 'endToEndTests';
 const testListName = 'тестЛист';
 const testListCaseName = 'тестЛистСцениариев';
 const testCaseFieldName = 'Сценарий';
+const testEnableName = 'включитьТесты';
+const testDisableName = 'выключитьТесты';
 export const testDataBaseName = 'тестБазаДанных';
 export const testGeneralDataName = 'тестИспользуемыеДанные';
 export const testHelpListName = 'тест';
 
 export const isGlobalTest = !!localStorage.getItem(globalTestName);
 
-window.enableGlobalTest = () => {
+window[testEnableName] = () => {
   localStorage.setItem(globalTestName, true);
   window.location.reload();
 };
-window.disableGlobalTest = () => {
+window[testDisableName] = () => {
   localStorage.removeItem(globalTestName);
   window.location.reload();
 };
@@ -32,28 +34,35 @@ if (isGlobalTest) {
     testKeyboardTapTime: 300,
   };
 
-  window[testHelpListName] = {
-    [testDataBaseName]: {
-      инфо: 'Данные, которые можно использовать для тестирования',
-      данные: window[testDataBaseName],
-    },
-    [testListName]: {
-      инфо: 'Список тестов, которые можно запустить',
-      данные: window[testListName],
-    },
-    [testGeneralDataName]: {
-      инфо: `Данные, которые будут использоваться в тестах по умолчанию. Их можно заменить. Например ${testGeneralDataName}.phone = '09876543211'`,
-      данные: window[testGeneralDataName],
-    },
-    [testListCaseName]: {
-      инфо: 'Список сценариев, которые используются для тестов',
-      данные: window[testListCaseName],
-    },
-  };
-
   window.startedTestName = '';
   window.startedTestCaseName = '';
 }
+
+window[testHelpListName] = {
+  [testDataBaseName]: {
+    инфо: 'Данные, которые можно использовать для тестирования',
+    данные: window[testDataBaseName],
+  },
+  [testListName]: {
+    инфо: 'Список тестов, которые можно запустить',
+    данные: window[testListName],
+  },
+  [testGeneralDataName]: {
+    инфо: `Данные, которые будут использоваться в тестах по умолчанию. Их можно заменить. Например ${testGeneralDataName}.phone = '09876543211'`,
+    данные: window[testGeneralDataName],
+  },
+  [testListCaseName]: {
+    инфо: 'Список сценариев, которые используются для тестов',
+    данные: window[testListCaseName],
+  },
+  [testDisableName]: {
+    инфо: 'Выключить тысты',
+  },
+  [testEnableName]: {
+    инфо: 'Включить возможность тестирования',
+  },
+};
+
 const testDate = new Date();
 const addZeroToDate = (date) => (`00${String(date)}`).slice(-2);
 
@@ -114,6 +123,8 @@ export const testClickElement = (testId, elementName) => {
   const element = testIdSelect(testId, elementName);
 
   element.click();
+
+  return element;
 };
 
 export const testFindChildNode = (element, searchItem) => {
@@ -153,11 +164,56 @@ export const testPromiseRequestLoading = async (condition = testIsRequestLoading
   return promise;
 };
 
+export const asyncSetInput = async (testId, newValue) => {
+  const element = testIdSelect(testId);
+
+  if (!element) return;
+
+  const valueSetter = Object.getOwnPropertyDescriptor(element, 'value').set;
+  const prototype = Object.getPrototypeOf(element);
+  const prototypeValueSetter = Object.getOwnPropertyDescriptor(prototype, 'value').set;
+
+  if (valueSetter && valueSetter !== prototypeValueSetter) {
+    prototypeValueSetter.call(element, newValue);
+  } else {
+    valueSetter.call(element, newValue);
+  }
+
+  // native event
+  // element.dispatchEvent(new Event('input', { bubbles: true }));
+
+  // React event
+  element.dispatchEvent(event);
+
+  const delayPromise = new Promise((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, window[testGeneralDataName].testKeyboardTapTime);
+  });
+
+  await delayPromise;
+};
+
 // work only with MUI selector and TextField select
 export const testChangeSelectorValue = async (selectorName) => {
+  const value = testGetMainCaseValue(selectorName);
+  const searchValue = typeof value !== 'string' && value?.search;
+  const testIdInput = `${selectorName}Input`;
+
   const element = testIdSelect(selectorName, 'button');
+  let isLoading = false;
+
+  if (searchValue) {
+    await asyncSetInput(testIdInput, searchValue);
+    isLoading = true;
+  }
+
   scrollToElement(element.parentElement);
   element.click();
+
+  if (isLoading) {
+    await testPromiseRequestLoading(() => element.dataset.requestLoading === 'false');
+  }
 
   const list = document.querySelector(`ul[aria-labelledby="${selectorName}-label"]`);
 
@@ -185,8 +241,6 @@ export const testAddFiles = async (fileLink, inputElement) => {
 };
 
 export const asyncSetValue = async (testId, newValue) => {
-  const typeValue = 'value';
-
   const element = testIdSelect(testId);
 
   if (!element) return;
@@ -199,15 +253,15 @@ export const asyncSetValue = async (testId, newValue) => {
   }
 
   if (element?.className?.toLocaleLowerCase?.()?.includes?.('selector')) {
-    testChangeSelectorValue(testId);
+    await testChangeSelectorValue(testId);
   } else if (element.type === 'file') {
-    testAddFiles(value, element);
+    await testAddFiles(value, element);
   } else if (element.type === 'checkbox') {
     if (element.checked !== value) element.click();
   } else {
-    const valueSetter = Object.getOwnPropertyDescriptor(element, typeValue).set;
+    const valueSetter = Object.getOwnPropertyDescriptor(element, 'value').set;
     const prototype = Object.getPrototypeOf(element);
-    const prototypeValueSetter = Object.getOwnPropertyDescriptor(prototype, typeValue).set;
+    const prototypeValueSetter = Object.getOwnPropertyDescriptor(prototype, 'value').set;
 
     if (valueSetter && valueSetter !== prototypeValueSetter) {
       prototypeValueSetter.call(element, value);

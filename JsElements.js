@@ -147,7 +147,7 @@ class CustomModal {
         
         headerEl.style.position = 'relative';
         headerEl.style.minHeight = '38px';
-        headerEl.append(title, headerCloseButtonEl);
+        headerEl.append(title, this.closeButtonEl);
         
         return headerEl;
     }

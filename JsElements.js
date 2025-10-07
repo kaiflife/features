@@ -53,6 +53,18 @@ class CustomLabel {
 
 class CustomSelector extends CustomLabel {
     static optionSelectedClass = 'option-selected'
+    
+    static getSelectedOptions (el) {
+        if (!el) return [];
+
+        const selectedOptionsEls = el.querySelectorAll('.option-selected');
+
+        if (selectedOptionsEls) {
+            return Array.from(selectedOptionsEls).map(item => item.value)
+        }
+
+        return []
+    }
 
     constructor({ id = '', options = [], height = '300px', isMulti = true, label = '', isRequired = false }) {
         super({ label, isRequired })
@@ -129,6 +141,17 @@ class CustomSelector extends CustomLabel {
 }
 
 class CustomTextarea extends CustomLabel {
+    static getTextarea(el) {
+        const textareEl = el.querySelector('textarea');
+        
+        if (!el) return null;
+
+        return {
+            textareaEl,
+            value: textareEl.value,
+        }
+    }
+
     constructor({ id = '', value = '', label = 'Введите текст сообщения', rows = 4, containerClassName = '', className = '', style, containerStyle, isRequired }) {
         super({ label, isRequired })
 

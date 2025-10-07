@@ -209,8 +209,9 @@ class CustomTextarea extends CustomLabel {
             if (this.onchange) {
                 this.onchange(event)
             }
-
-            CustomLabel.setError({ hasError: false, containerEl: this.containerEl })
+        }
+        this.inputEl.onkeydown = (event) => {
+            CustomLabel.setError({ hasError: false, containerEl: this.containerEl });
         }
 
         setStyleToEl(this.style, this.inputEl)

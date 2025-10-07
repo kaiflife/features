@@ -250,7 +250,8 @@ class CustomModal {
             flexDirection: 'column',
             gap: '8px',
             width: this.settings.width,
-            height: this.settings.height
+            height: this.settings.height,
+            'max-height': '100vh',
         }, modalEl)
 
         return modalEl;

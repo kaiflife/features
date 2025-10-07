@@ -64,6 +64,8 @@ class CustomSelector extends CustomLabel {
 
         this.containerEl = document.createElement('div');
         this.optionsContainerEl = document.createElement('ul');
+
+        this.init();
     }
 
     getOptionString({ isSelected, id, name }) {

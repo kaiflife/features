@@ -97,10 +97,120 @@ class CustomModal {
     }
 
     createModalContainer() {
-        // ... (предыдущий код)
+        const container = document.createElement('div');
+        container.id = this.settings.id;
+        container.className = 'custom-modal';
+        
+        const styles = {
+            width: '100vw',
+            height: '100vh',
+            zIndex: '3',
+            position: 'fixed',
+            top: '0',
+            left: '0',
+            backgroundColor: 'rgba(0,0,0,0.4)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+        };
+        
+        Object.entries(styles).forEach(([key, value]) => {
+            container.style[key] = value;
+        });
+        
+        return container;
     }
 
-    // ... (другие методы создания элементов)
+    createHeader() {
+        const header = document.createElement('div');
+        header.classList.add('header');
+        
+        const title = document.createElement('h3');
+        title.textContent = this.settings.title;
+        
+        const closeButton = document.createElement('button');
+        closeButton.classList.add('close');
+        closeButton.textContent = '×';
+        
+        const buttonStyles = {
+            position: 'absolute',
+            width: '38px',
+            height: '38px',
+            top: '-8px',
+            right: '0'
+        };
+        
+        Object.entries(buttonStyles).forEach(([key, value]) => {
+            closeButton.style[key] = value;
+        });
+        
+        header.style.position = 'relative';
+        header.style.minHeight = '38px';
+        header.append(title, closeButton);
+        
+        return header;
+    }
+
+    createMain() {
+        const main = document.createElement('div');
+        main.classList.add('main');
+        
+        const styles = {
+            display: 'flex',
+            flexDirection: 'column',
+            height: '0',
+            gap: '8px',
+            overflow: 'auto',
+            flex: '1'
+        };
+        
+        Object.entries(styles).forEach(([key, value]) => {
+            main.style[key] = value;
+        });
+        
+        if (typeof this.settings.content === 'string') {
+            main.innerHTML = this.settings.content;
+        } else {
+            main.append(this.settings.content);
+        }
+        
+        return main;
+    }
+
+    createFooter() {
+        const footer = document.createElement('div');
+        footer.classList.add('footer');
+        
+        this.settings.buttons.forEach(button => {
+            const btn = document.createElement('button');
+            btn.classList.add('button');
+            btn.textContent = button.text;
+            btn.onclick = button.onClick;
+            footer.append(btn);
+        });
+        
+        return footer;
+    }
+
+    createModal() {
+        const modal = document.createElement('div');
+        
+        const styles = {
+            padding: '14px',
+            backgroundColor: 'white',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px',
+            width: this.settings.width,
+            height: this.settings.height
+        };
+        
+        Object.entries(styles).forEach(([key, value]) => {
+            modal.style[key] = value;
+        });
+        
+        return modal;
+    }
 
     initEvents() {
         this.closeOnEscButton = (e) => {

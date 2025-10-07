@@ -29,20 +29,24 @@ class CustomLabel {
 
         const labelEl = containerEl.querySelector(`.${CustomLabel.containerElClass}`);
 
+        const addErrorClass = (isAdd = false) => {
+            containerEl.classList[isAdd ? 'add' : 'remove'](CustomLabel.containerElErrorClass)
+        }
+
         if (labelEl) {
             if (errorText !== undefined) {
                 if (errorText) {
                     labelEl.innerHTML += errorText
-                    containerEl.classList.add(CustomLabel.containerElErrorClass)
+                    addErrorClass(true)
                 } else {
                     labelEl.innerHTML = labelEl.dataset.label;
-                    containerEl.classList.remove(CustomLabel.containerElErrorClass)
+                    addErrorClass()
                 }
             } else {
                 if (hasError) {
-                    containerEl.classList.add(CustomLabel.containerElErrorClass)
+                    addErrorClass(true)
                 } else {
-                    containerEl.classList.remove(CustomLabel.containerElErrorClass)
+                    addErrorClass()
                 }
             }
         }
@@ -135,14 +139,14 @@ class CustomTextarea extends CustomLabel {
         this.containerStyle = containerStyle;
 
         this.containerEl = document.createElement('div');
-        this.inputEl= document.createElement('textarea');
+        this.inputEl = document.createElement('textarea');
 
         this.init();
     }
 
     init() {
         this.containerEl.className = `custom-textarea-container ${this.containerClassName}`;
-        setStyleToEl({ display: 'flex', 'flex-direction': 'column', gap: '4px'}, this.containerEl)
+        setStyleToEl({ display: 'flex', 'flex-direction': 'column', gap: '4px' }, this.containerEl)
 
         this.containerEl.append(this.labelEl);
 

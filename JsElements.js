@@ -6,24 +6,64 @@ const setStyleToEl = (style, el) => {
     }
 }
 
-class CustomSelector {
-    constructor({ id = '', options = [], label = '', height = '300px', isMulti = true }) {
+class CustomLabel {
+    static containerElErrorClass = 'custom-error'
+
+    constructor({ label = '' }) {
+        this.labelEl = document.createElement('span');
+        this.label = label;
+
+        this.init();
+    }
+
+    init() {
+        this.labelEl.innerHTML = this.label;
+        this.labelEl.dataset.label = this.label;
+        this.labelEl.className = 'custom-label';
+    }
+
+    static setError({ errorText, containerEl, hasError }) {
+        if (!containerEl) return;
+
+        const labelEl = containerEl.querySelector('.custom-label');
+
+        if (labelEl) {
+            if (errorText !== undefined) {
+                if (errorText) {
+                    labelEl.innerHTML += errorText
+                    containerEl.classList.add(CustomLabel.containerElErrorClass)
+                } else {
+                    labelEl.innerHTML = labelEl.dataset.label;
+                    containerEl.classList.remove(CustomLabel.containerElErrorClass)
+                }
+            } else {
+                if (hasError) {
+                    containerEl.classList.add(CustomLabel.containerElErrorClass)
+                } else {
+                    containerEl.classList.remove(CustomLabel.containerElErrorClass)
+                }
+            }
+        }
+    }
+}
+
+class CustomSelector extends CustomLabel {
+    static optionSelectedClass = 'option-selected'
+
+    constructor({ id = '', options = [], height = '300px', isMulti = true, label = '' }) {
         this.id = id;
         this.options = options;
-        this.label = label;
         this.height = height;
         this.isMulti = isMulti;
-        this.optionSelectedClassQuery = 'option-selected';
 
         this.containerEl = document.createElement('div');
         this.optionsContainerEl = document.createElement('ul');
-        this.labelEl = document.createElement('span');
 
         this.init();
     }
 
     getOptionString({ isSelected, id, name }) {
-        return `<li class="${isSelected ? this.optionSelectedClassQuery : ''}" value="${id}">${name}</li>`;
+        return `<li class="${isSelected ? CustomSelector.optionSelectedClass : ''}" value="${id}">${name}</li>`;
     }
 
     setSelectorOptions(options = []) {
@@ -34,7 +74,6 @@ class CustomSelector {
     }
 
     init() {
-        this.labelEl.innerHTML = this.label
         this.containerEl.append(this.labelEl);
 
         this.setSelectorOptions(this.options);
@@ -62,13 +101,13 @@ class CustomSelector {
 
         this.optionsContainerEl.onclick = (event) => {
             if (event.target.tagName === 'LI') {
-                if (event.target.classList.contains(this.optionSelectedClassQuery)) {
-                    event.target.classList.remove(this.optionSelectedClassQuery);
+                if (event.target.classList.contains(CustomSelector.optionSelectedClass)) {
+                    event.target.classList.remove(CustomSelector.optionSelectedClass);
                 } else {
                     if (!this.isMulti) {
-                        this.selector.querySelector(`.${this.optionSelectedClassQuery}`)?.classList.remove(this.optionSelectedClassQuery);
+                        this.selector.querySelector(`.${CustomSelector.optionSelectedClass}`)?.classList.remove(CustomSelector.optionSelectedClass);
                     }
-                    event.target.classList.add(this.optionSelectedClassQuery);
+                    event.target.classList.add(CustomSelector.optionSelectedClass);
                 }
             }
         };
@@ -81,10 +120,11 @@ class CustomSelector {
     }
 }
 
-class CustomTextarea {
+class CustomTextarea extends CustomLabel {
     constructor({ id = '', value = '', label = 'Введите текст сообщения', rows = 4, containerClassName = '', className = '', style, containerStyle }) {
+        super({ label })
+
         this.id = id;
-        this.label = label;
         this.value = value;
         this.rows = rows;
         this.className = className;
@@ -94,20 +134,17 @@ class CustomTextarea {
 
         this.containerEl = document.createElement('div');
         this.inputEl= document.createElement('textarea');
-        this.labelEl = document.createElement('span');
 
         this.init();
     }
 
     init() {
-        this.containerEl.className = this.containerClassName;
+        this.containerEl.className = `custom-textarea-container ${this.containerClassName}`;
         setStyleToEl({ display: 'flex', 'flex-direction': 'column', gap: '4px'}, this.containerEl)
 
-        this.labelEl.innerHTML = this.label
         this.containerEl.append(this.labelEl);
 
         this.inputEl.rows = this.rows;
-        this.inputEl.classList.add('textarea');
         this.inputEl.className = this.className;
         setStyleToEl(this.style, this.inputEl)
 

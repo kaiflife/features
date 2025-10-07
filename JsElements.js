@@ -14,8 +14,6 @@ class CustomLabel {
         this.labelEl = document.createElement('span');
         this.isRequired = isRequired;
         this.label = `${label}${isRequired ? ' (Обязательное поле)' : ''}`;
-
-        this.init();
     }
 
     init() {
@@ -56,7 +54,9 @@ class CustomLabel {
 class CustomSelector extends CustomLabel {
     static optionSelectedClass = 'option-selected'
 
-    constructor({ id = '', options = [], height = '300px', isMulti = true, label = '' }) {
+    constructor({ id = '', options = [], height = '300px', isMulti = true, label = '', isRequired = false }) {
+        super({ label, isRequired })
+
         this.id = id;
         this.options = options;
         this.height = height;
@@ -64,8 +64,6 @@ class CustomSelector extends CustomLabel {
 
         this.containerEl = document.createElement('div');
         this.optionsContainerEl = document.createElement('ul');
-
-        this.init();
     }
 
     getOptionString({ isSelected, id, name }) {
@@ -80,6 +78,8 @@ class CustomSelector extends CustomLabel {
     }
 
     init() {
+        super.init();
+
         this.containerEl.append(this.labelEl);
 
         this.setSelectorOptions(this.options);
@@ -111,7 +111,7 @@ class CustomSelector extends CustomLabel {
                     event.target.classList.remove(CustomSelector.optionSelectedClass);
                 } else {
                     if (!this.isMulti) {
-                        this.selector.querySelector(`.${CustomSelector.optionSelectedClass}`)?.classList.remove(CustomSelector.optionSelectedClass);
+                        this.optionsContainerEl.querySelector(`.${CustomSelector.optionSelectedClass}`)?.classList.remove(CustomSelector.optionSelectedClass);
                     }
                     event.target.classList.add(CustomSelector.optionSelectedClass);
                 }
@@ -127,8 +127,8 @@ class CustomSelector extends CustomLabel {
 }
 
 class CustomTextarea extends CustomLabel {
-    constructor({ id = '', value = '', label = 'Введите текст сообщения', rows = 4, containerClassName = '', className = '', style, containerStyle }) {
-        super({ label })
+    constructor({ id = '', value = '', label = 'Введите текст сообщения', rows = 4, containerClassName = '', className = '', style, containerStyle, isRequired }) {
+        super({ label, isRequired })
 
         this.id = id;
         this.value = value;
@@ -145,6 +145,8 @@ class CustomTextarea extends CustomLabel {
     }
 
     init() {
+        super.init();
+
         this.containerEl.className = `custom-textarea-container ${this.containerClassName}`;
         setStyleToEl({ display: 'flex', 'flex-direction': 'column', gap: '4px' }, this.containerEl)
 

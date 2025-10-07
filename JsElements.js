@@ -130,7 +130,7 @@ class CustomSelector extends CustomLabel {
 
         this.optionsContainerEl.onclick = (event) => {
             if (event.target.tagName === 'LI') {
-                this.setError({ hasError: false, containerEl: this.containerEl })
+                CustomLabel.setError({ hasError: false, containerEl: this.containerEl })
 
                 if (event.target.classList.contains(CustomSelector.optionSelectedClass)) {
                     event.target.classList.remove(CustomSelector.optionSelectedClass);
@@ -210,7 +210,7 @@ class CustomTextarea extends CustomLabel {
                 this.onchange(event)
             }
 
-            this.setError({ hasError: false, containerEl: this.containerEl })
+            CustomLabel.setError({ hasError: false, containerEl: this.containerEl })
         }
 
         setStyleToEl(this.style, this.inputEl)

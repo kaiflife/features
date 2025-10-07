@@ -8,11 +8,12 @@ const setStyleToEl = (style, el) => {
 
 class CustomLabel {
     static containerElErrorClass = 'custom-error'
+    static containerElClass = 'custom-label'
 
     constructor({ label = '', isRequired = false }) {
         this.labelEl = document.createElement('span');
         this.isRequired = isRequired;
-        this.label = `${label}${isRequired ? ' (Обязательное поле)': ''}`;
+        this.label = `${label}${isRequired ? ' (Обязательное поле)' : ''}`;
 
         this.init();
     }
@@ -20,13 +21,13 @@ class CustomLabel {
     init() {
         this.labelEl.innerHTML = this.label;
         this.labelEl.dataset.label = this.label;
-        this.labelEl.className = 'custom-label';
+        this.labelEl.className = CustomLabel.containerElClass;
     }
 
     static setError({ errorText, containerEl, hasError }) {
         if (!containerEl) return;
 
-        const labelEl = containerEl.querySelector('.custom-label');
+        const labelEl = containerEl.querySelector(`.${CustomLabel.containerElClass}`);
 
         if (labelEl) {
             if (errorText !== undefined) {

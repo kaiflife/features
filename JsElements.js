@@ -100,12 +100,15 @@ class CustomTextarea {
     }
 
     init() {
+        this.containerEl.className = this.containerClassName;
+        setStyleToEl({ display: 'flex', 'flex-direction': 'column', gap: '4px'}, this.containerEl)
+
         this.labelEl.innerHTML = this.label
         this.containerEl.append(this.labelEl);
 
         this.inputEl.rows = this.rows;
         this.inputEl.classList.add('textarea');
-        this.inputEl.className += `${this.inputEl.className}${this.className ? ` ${this.className}` : ''}`
+        this.inputEl.className = this.className;
         setStyleToEl(this.style, this.inputEl)
 
         this.containerEl.append(this.inputEl)
@@ -114,7 +117,6 @@ class CustomTextarea {
             this.containerEl.id = this.id;
         }
 
-        this.containerEl.className += `${this.containerEl.className}${this.containerClassName ? ` ${this.containerClassName}` : ''}`
         setStyleToEl(this.style, this.containerEl);
     }
 

@@ -9,9 +9,10 @@ const setStyleToEl = (style, el) => {
 class CustomLabel {
     static containerElErrorClass = 'custom-error'
 
-    constructor({ label = '' }) {
+    constructor({ label = '', isRequired = false }) {
         this.labelEl = document.createElement('span');
-        this.label = label;
+        this.isRequired = isRequired;
+        this.label = `${label}${isRequired ? ' (Обязательное поле)': ''}`;
 
         this.init();
     }

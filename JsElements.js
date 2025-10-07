@@ -148,7 +148,7 @@ class CustomTextarea extends CustomLabel {
 
         return {
             textareaEl,
-            value: textareEl.value,
+            value: textareaEl.value,
         }
     }
 

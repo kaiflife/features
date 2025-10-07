@@ -81,7 +81,6 @@ class CustomModal {
             width: '540px',
             onClose: null,
             closeOnEsc: true,
-            shouldAutoClose: true,
             closeOnOverlay: true,
             ...options
         };

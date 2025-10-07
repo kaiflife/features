@@ -142,7 +142,7 @@ class CustomSelector extends CustomLabel {
 
 class CustomTextarea extends CustomLabel {
     static getTextarea(el) {
-        const textareEl = el.querySelector('textarea');
+        const textareaEl = el.querySelector('textarea');
         
         if (!el) return null;
 

@@ -132,8 +132,8 @@ class CustomModal {
             content: '',
             id: 'modalId',
             buttons: [],
-            height: '540px',
-            width: '540px',
+            height: 'fit-content',
+            width: 'fit-content',
             onClose: null,
             closeOnEsc: true,
             closeOnOverlay: true,
@@ -176,6 +176,8 @@ class CustomModal {
     createHeaderEl() {
         const headerEl = document.createElement('div');
         headerEl.classList.add('header');
+        setStyleToEl({ 'padding-right': '56px', position: 'relative', 'min-height': '38px' }, headerEl);
+
 
         const title = document.createElement('h3');
         title.textContent = this.settings.title;
@@ -194,8 +196,6 @@ class CustomModal {
 
         setStyleToEl(buttonStyles, this.closeButtonEl)
 
-        headerEl.style.position = 'relative';
-        headerEl.style.minHeight = '38px';
         headerEl.append(title, this.closeButtonEl);
 
         return headerEl;

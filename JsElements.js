@@ -1,80 +1,127 @@
 const setStyleToEl = (style, el) => {
-    Object.keys(style).forEach(styleKey => {
-        el[styleKey] = style[styleKey]
-    })
+    if (style && el) {
+        Object.keys(style).forEach(styleKey => {
+            el.style[styleKey] = style[styleKey]
+        })
+    }
 }
 
 class CustomSelector {
-        constructor({ id = '', options = [], label = '', height = '300px', isMulti = true }) {
-            this.id = id;
-            this.options = options;
-            this.label = label;
-            this.height = height;
-            this.isMulti = isMulti;
-            this.optionSelectedClassQuery = 'option-selected';
+    constructor({ id = '', options = [], label = '', height = '300px', isMulti = true }) {
+        this.id = id;
+        this.options = options;
+        this.label = label;
+        this.height = height;
+        this.isMulti = isMulti;
+        this.optionSelectedClassQuery = 'option-selected';
 
-            this.selector = document.createElement('div');
-            this.selectorList = document.createElement('ul');
-            this.selectorLabel = document.createElement('span');
+        this.containerEl = document.createElement('div');
+        this.optionsContainerEl = document.createElement('ul');
+        this.labelEl = document.createElement('span');
 
-            this.init();
-        }
-
-        getOptionString({ isSelected, id, name }) {
-            return `<li class="${isSelected ? this.optionSelectedClassQuery : ''}" value="${id}">${name}</li>`;
-        }
-
-        setSelectorOptions(options = []) {
-            this.selectorList.innerHTML = options.reduce((newStringHtml, { name, id }) => {
-                newStringHtml += this.getOptionString({ isSelected: false, id, name });
-                return newStringHtml;
-            }, '');
-        }
-
-        init() {
-            this.selectorLabel.innerHTML = this.label
-            this.selectorLabel.style['word-wrap'] = 'wrap';
-            this.selectorLabel.style['word-break'] = 'break-word';
-            this.selector.append(this.selectorLabel);
-
-            this.setSelectorOptions(this.options);
-
-            this.selector.id = 'sendMessageSelector';
-            this.selector.classList.add('custom-selector');
-            this.selector.style.display = 'flex';
-            this.selector.style['flex-direction'] = 'column';
-            this.selector.style.gap = '4px';
-
-            this.selectorList.style.height = this.height;
-            this.selectorList.style.width = '100%';
-            this.selectorList.style.display = 'flex';
-            this.selectorList.style.flexDirection = 'column';
-            this.selectorList.style.gap = '8px';
-            this.selectorList.style.padding = '8px';
-            this.selectorList.style.overflow = 'auto';
-            this.selectorList.style.border = '1px solid black';
-            this.selectorList.style.borderRadius = '4px';
-
-            this.selectorList.onclick = (event) => {
-                if (event.target.tagName === 'LI') {
-                    if (event.target.classList.contains(this.optionSelectedClassQuery)) {
-                        event.target.classList.remove(this.optionSelectedClassQuery);
-                    } else {
-                        if (!this.isMulti) {
-                            this.selector.querySelector(`.${this.optionSelectedClassQuery}`)?.classList.remove(this.optionSelectedClassQuery);
-                        }
-                        event.target.classList.add(this.optionSelectedClassQuery);
-                    }
-                }
-            };
-
-            this.selector.append(this.selectorList)
-        }
-
-        getElement() {
-            return this.selector;
-        }
+        this.init();
     }
+
+    getOptionString({ isSelected, id, name }) {
+        return `<li class="${isSelected ? this.optionSelectedClassQuery : ''}" value="${id}">${name}</li>`;
+    }
+
+    setSelectorOptions(options = []) {
+        this.optionsContainerEl.innerHTML = options.reduce((newStringHtml, { name, id }) => {
+            newStringHtml += this.getOptionString({ isSelected: false, id, name });
+            return newStringHtml;
+        }, '');
+    }
+
+    init() {
+        this.labelEl.innerHTML = this.label
+        this.containerEl.append(this.labelEl);
+
+        this.setSelectorOptions(this.options);
+
+        this.containerEl.id = 'sendMessageSelector';
+        this.containerEl.classList.add('custom-selector');
+
+        setStyleToEl({
+            display: 'flex',
+            'flex-direction': 'column',
+            gap: '4px',
+        }, this.containerEl)
+
+        setStyleToEl({
+            height: this.height,
+            width: '100%',
+            display: 'flex',
+            'flex-direction': 'column',
+            gap: '8px',
+            padding: '8px',
+            overflow: 'auto',
+            border: '1px solid black',
+            'border-radius': '4px',
+        }, this.optionsContainerEl)
+
+        this.optionsContainerEl.onclick = (event) => {
+            if (event.target.tagName === 'LI') {
+                if (event.target.classList.contains(this.optionSelectedClassQuery)) {
+                    event.target.classList.remove(this.optionSelectedClassQuery);
+                } else {
+                    if (!this.isMulti) {
+                        this.selector.querySelector(`.${this.optionSelectedClassQuery}`)?.classList.remove(this.optionSelectedClassQuery);
+                    }
+                    event.target.classList.add(this.optionSelectedClassQuery);
+                }
+            }
+        };
+
+        this.containerEl.append(this.selectorList)
+    }
+
+    getElement() {
+        return this.containerEl;
+    }
+}
+
+class CustomTextarea {
+    constructor({ id = '', value = '', label = 'Введите текст сообщения', rows = 4, containerClassName = '', className = '', style, containerStyle }) {
+        this.id = id;
+        this.label = label;
+        this.value = value;
+        this.rows = rows;
+        this.className = className;
+        this.containerClassName = containerClassName;
+        this.style = style;
+        this.containerStyle = containerStyle;
+
+        this.containerEl = document.createElement('div');
+        this.inputEl= document.createElement('textarea');
+        this.labelEl = document.createElement('span');
+
+        this.init();
+    }
+
+    init() {
+        this.labelEl.innerHTML = this.label
+        this.containerEl.append(this.labelEl);
+
+        this.inputEl.rows = this.rows;
+        this.inputEl.classList.add('textarea');
+        this.inputEl.className += `${this.inputEl.className}${this.className ? ` ${this.className}` : ''}`
+        setStyleToEl(this.style, this.inputEl)
+
+        this.containerEl.append(this.inputEl)
+
+        if (this.id) {
+            this.containerEl.id = this.id;
+        }
+
+        this.containerEl.className += `${this.containerEl.className}${this.containerClassName ? ` ${this.containerClassName}` : ''}`
+        setStyleToEl(this.style, this.containerEl);
+    }
+
+    getElement() {
+        return this.containerEl;
+    }
+}
 
 class CustomModal {
     constructor(options = {}) {
@@ -96,7 +143,7 @@ class CustomModal {
         this.mainEl = this.createMainEl();
         this.footerEl = this.createFooterEl();
         this.modalEl = this.createModalEl();
-        
+
         this.initEvents();
         this.render();
     }
@@ -105,7 +152,7 @@ class CustomModal {
         const containerEl = document.createElement('div');
         containerEl.id = this.settings.id;
         containerEl.className = 'custom-modal';
-        
+
         const styles = {
             width: '100vw',
             height: '100vh',
@@ -118,23 +165,23 @@ class CustomModal {
             alignItems: 'center',
             justifyContent: 'center'
         };
-        
+
         setStyleToEl(styles, containerEl)
-        
+
         return containerEl;
     }
 
     createHeaderEl() {
         const headerEl = document.createElement('div');
         headerEl.classList.add('header');
-        
+
         const title = document.createElement('h3');
         title.textContent = this.settings.title;
-        
+
         this.closeButtonEl = document.createElement('button');
         this.closeButtonEl.classList.add('close');
         this.closeButtonEl.textContent = '×';
-        
+
         const buttonStyles = {
             position: 'absolute',
             width: '38px',
@@ -142,20 +189,20 @@ class CustomModal {
             top: '-8px',
             right: '0'
         };
-        
+
         setStyleToEl(buttonStyles, this.closeButtonEl)
-        
+
         headerEl.style.position = 'relative';
         headerEl.style.minHeight = '38px';
         headerEl.append(title, this.closeButtonEl);
-        
+
         return headerEl;
     }
 
     createMainEl() {
         const mainEl = document.createElement('div');
         mainEl.classList.add('main');
-        
+
         const styles = {
             display: 'flex',
             flexDirection: 'column',
@@ -164,22 +211,22 @@ class CustomModal {
             overflow: 'auto',
             flex: '1'
         };
-        
+
         setStyleToEl(styles, mainEl)
-        
+
         if (typeof this.settings.content === 'string') {
             mainEl.innerHTML = this.settings.content;
         } else {
             mainEl.append(this.settings.content);
         }
-        
+
         return mainEl;
     }
 
     createFooterEl() {
         const footerEl = document.createElement('div');
         footerEl.classList.add('footer');
-        
+
         this.settings.buttons.forEach(button => {
             const btnEl = document.createElement('button');
             btnEl.classList.add('button');
@@ -187,13 +234,13 @@ class CustomModal {
             btnEl.onclick = button.onClick;
             footerEl.append(btnEl);
         });
-        
+
         return footerEl;
     }
 
     createModalEl() {
         const modalEl = document.createElement('div');
-        
+
         setStyleToEl({
             padding: '14px',
             backgroundColor: 'white',
@@ -203,7 +250,7 @@ class CustomModal {
             width: this.settings.width,
             height: this.settings.height
         }, modalEl)
-        
+
         return modalEl;
     }
 

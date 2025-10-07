@@ -73,7 +73,7 @@ class CustomSelector {
             }
         };
 
-        this.containerEl.append(this.selectorList)
+        this.containerEl.append(this.optionsContainerEl)
     }
 
     getElement() {

@@ -1,3 +1,9 @@
+const setStyleToEl = (style, el) => {
+    Object.keys(style).forEach(styleKey => {
+        el[styleKey] = style[styleKey]
+    })
+}
+
 class CustomSelector {
         constructor({ id = '', options = [], label = '', height = '300px', isMulti = true }) {
             this.id = id;
@@ -85,20 +91,20 @@ class CustomModal {
             ...options
         };
 
-        this.modalContainer = this.createModalContainer();
-        this.header = this.createHeader();
-        this.main = this.createMain();
-        this.footer = this.createFooter();
-        this.modal = this.createModal();
+        this.modalContainerEl = this.createModalContainerEl();
+        this.headerEl = this.createHeaderEl();
+        this.mainEl = this.createMainEl();
+        this.footerEl = this.createFooterEl();
+        this.modalEl = this.createModalEl();
         
         this.initEvents();
         this.render();
     }
 
-    createModalContainer() {
-        const container = document.createElement('div');
-        container.id = this.settings.id;
-        container.className = 'custom-modal';
+    createModalContainerEl() {
+        const containerEl = document.createElement('div');
+        containerEl.id = this.settings.id;
+        containerEl.className = 'custom-modal';
         
         const styles = {
             width: '100vw',
@@ -113,23 +119,21 @@ class CustomModal {
             justifyContent: 'center'
         };
         
-        Object.entries(styles).forEach(([key, value]) => {
-            container.style[key] = value;
-        });
+        setStyleToEl(styles, containerEl)
         
-        return container;
+        return containerEl;
     }
 
-    createHeader() {
-        const header = document.createElement('div');
-        header.classList.add('header');
+    createHeaderEl() {
+        const headerEl = document.createElement('div');
+        headerEl.classList.add('header');
         
         const title = document.createElement('h3');
         title.textContent = this.settings.title;
         
-        const closeButton = document.createElement('button');
-        closeButton.classList.add('close');
-        closeButton.textContent = '×';
+        this.closeButtonEl = document.createElement('button');
+        this.closeButtonEl.classList.add('close');
+        this.closeButtonEl.textContent = '×';
         
         const buttonStyles = {
             position: 'absolute',
@@ -139,20 +143,18 @@ class CustomModal {
             right: '0'
         };
         
-        Object.entries(buttonStyles).forEach(([key, value]) => {
-            closeButton.style[key] = value;
-        });
+        setStyleToEl(buttonStyles, this.closeButtonEl)
         
-        header.style.position = 'relative';
-        header.style.minHeight = '38px';
-        header.append(title, closeButton);
+        headerEl.style.position = 'relative';
+        headerEl.style.minHeight = '38px';
+        headerEl.append(title, headerCloseButtonEl);
         
-        return header;
+        return headerEl;
     }
 
-    createMain() {
-        const main = document.createElement('div');
-        main.classList.add('main');
+    createMainEl() {
+        const mainEl = document.createElement('div');
+        mainEl.classList.add('main');
         
         const styles = {
             display: 'flex',
@@ -163,38 +165,36 @@ class CustomModal {
             flex: '1'
         };
         
-        Object.entries(styles).forEach(([key, value]) => {
-            main.style[key] = value;
-        });
+        setStyleToEl(styles, mainEl)
         
         if (typeof this.settings.content === 'string') {
-            main.innerHTML = this.settings.content;
+            mainEl.innerHTML = this.settings.content;
         } else {
-            main.append(this.settings.content);
+            mainEl.append(this.settings.content);
         }
         
-        return main;
+        return mainEl;
     }
 
-    createFooter() {
-        const footer = document.createElement('div');
-        footer.classList.add('footer');
+    createFooterEl() {
+        const footerEl = document.createElement('div');
+        footerEl.classList.add('footer');
         
         this.settings.buttons.forEach(button => {
-            const btn = document.createElement('button');
-            btn.classList.add('button');
-            btn.textContent = button.text;
-            btn.onclick = button.onClick;
-            footer.append(btn);
+            const btnEl = document.createElement('button');
+            btnEl.classList.add('button');
+            btnEl.textContent = button.text;
+            btnEl.onclick = button.onClick;
+            footerEl.append(btnEl);
         });
         
-        return footer;
+        return footerEl;
     }
 
-    createModal() {
-        const modal = document.createElement('div');
+    createModalEl() {
+        const modalEl = document.createElement('div');
         
-        const styles = {
+        setStyleToEl({
             padding: '14px',
             backgroundColor: 'white',
             display: 'flex',
@@ -202,13 +202,9 @@ class CustomModal {
             gap: '8px',
             width: this.settings.width,
             height: this.settings.height
-        };
+        }, modalEl)
         
-        Object.entries(styles).forEach(([key, value]) => {
-            modal.style[key] = value;
-        });
-        
-        return modal;
+        return modalEl;
     }
 
     initEvents() {
@@ -226,29 +222,35 @@ class CustomModal {
                 }
             }
 
-            document.removeEventListener('keydown', this.closeOnEscButton);
-            this.modalContainer.remove();
+            this.destroy();
         };
 
-        this.header.querySelector('.close').addEventListener('click', this.closeModal);
+        this.closeButtonEl.addEventListener('click', this.closeModal);
 
         if (this.settings.closeOnEsc) {
             document.addEventListener('keydown', this.closeOnEscButton);
         }
 
         if (this.settings.closeOnOverlay) {
-            this.modalContainer.addEventListener('click', (e) => {
-                if (e.target === this.modalContainer) {
+            this.modalContainerEl.addEventListener('click', (e) => {
+                if (e.target === this.modalContainerEl) {
                     this.closeModal();
                 }
             });
         }
     }
 
+    destroy() {
+        document.removeEventListener('keydown', this.closeOnEscButton);
+        this.modalContainerEl.removeEventListener('click', this.closeOnOverlay);
+        this.closeButtonEl.removeEventListener('click', this.closeModal);
+        this.modalContainerEl.remove();
+    }
+
     render() {
-        this.modal.append(this.header, this.main, this.footer);
-        this.modalContainer.append(this.modal);
-        document.body.append(this.modalContainer);
+        this.modalEl.append(this.headerEl, this.mainEl, this.footerEl);
+        this.modalContainerEl.append(this.modalEl);
+        document.body.append(this.modalContainerEl);
     }
 
     close() {

@@ -66,13 +66,22 @@ class CustomSelector extends CustomLabel {
         return []
     }
 
-    constructor({ id = '', options = [], height = '300px', isMulti = true, label = '', isRequired = false }) {
+    constructor({ 
+        id = '',
+        options = [],
+        height = '300px',
+        isMulti = true,
+        label = '',
+        isRequired = false,
+        onchange,
+    }) {
         super({ label, isRequired })
 
         this.id = id;
         this.options = options;
         this.height = height;
         this.isMulti = isMulti;
+        this.onchange = onchange;
 
         this.containerEl = document.createElement('div');
         this.optionsContainerEl = document.createElement('ul');
@@ -121,6 +130,8 @@ class CustomSelector extends CustomLabel {
 
         this.optionsContainerEl.onclick = (event) => {
             if (event.target.tagName === 'LI') {
+                this.setError({ hasError: false, containerEl: this.containerEl })
+
                 if (event.target.classList.contains(CustomSelector.optionSelectedClass)) {
                     event.target.classList.remove(CustomSelector.optionSelectedClass);
                 } else {
@@ -128,6 +139,10 @@ class CustomSelector extends CustomLabel {
                         this.optionsContainerEl.querySelector(`.${CustomSelector.optionSelectedClass}`)?.classList.remove(CustomSelector.optionSelectedClass);
                     }
                     event.target.classList.add(CustomSelector.optionSelectedClass);
+                }
+
+                if (this.onchange) {
+                    this.onchange(event, CustomSelector.getSelectedOptions(event.target))
                 }
             }
         };
@@ -152,7 +167,17 @@ class CustomTextarea extends CustomLabel {
         }
     }
 
-    constructor({ id = '', value = '', label = 'Введите текст сообщения', rows = 4, containerClassName = '', className = '', style, containerStyle, isRequired }) {
+    constructor({
+        id = '',
+        value = '',
+        label = 'Введите текст сообщения',
+        rows = 4,
+        containerClassName = '',
+        className = '',
+        style,
+        containerStyle,
+        isRequired = false,
+    }) {
         super({ label, isRequired })
 
         this.id = id;
@@ -161,6 +186,7 @@ class CustomTextarea extends CustomLabel {
         this.className = className;
         this.containerClassName = containerClassName;
         this.style = style;
+        this.onchange = onchange;
         this.containerStyle = containerStyle;
 
         this.containerEl = document.createElement('div');
@@ -179,6 +205,14 @@ class CustomTextarea extends CustomLabel {
 
         this.inputEl.rows = this.rows;
         this.inputEl.className = this.className;
+        this.inputEl.onchange = (event) => {
+            if (this.onchange) {
+                this.onchange(event)
+            }
+
+            this.setError({ hasError: false, containerEl: this.containerEl })
+        }
+
         setStyleToEl(this.style, this.inputEl)
 
         this.containerEl.append(this.inputEl)

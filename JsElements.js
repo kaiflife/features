@@ -52,7 +52,8 @@ class CustomLabel {
 }
 
 class CustomSelector extends CustomLabel {
-    static optionSelectedClass = 'option-selected'
+    static optionSelectedClassName = 'option-selected'
+    static className = 'custom-selector-container'
     
     static getSelectedOptions (el) {
         if (!el) return [];
@@ -90,7 +91,7 @@ class CustomSelector extends CustomLabel {
     }
 
     getOptionString({ isSelected, id, name }) {
-        return `<li class="${isSelected ? CustomSelector.optionSelectedClass : ''}" value="${id}">${name}</li>`;
+        return `<li class="${isSelected ? CustomSelector.optionSelectedClassName : ''}" value="${id}">${name}</li>`;
     }
 
     setSelectorOptions(options = []) {
@@ -107,8 +108,8 @@ class CustomSelector extends CustomLabel {
 
         this.setSelectorOptions(this.options);
 
-        this.containerEl.id = 'sendMessageSelector';
-        this.containerEl.classList.add('custom-selector');
+        this.containerEl.id = this.id;
+        this.containerEl.classList.add(CustomSelector.customSelectorClass);
 
         setStyleToEl({
             display: 'flex',
@@ -132,13 +133,13 @@ class CustomSelector extends CustomLabel {
             if (event.target.tagName === 'LI') {
                 CustomLabel.setError({ hasError: false, containerEl: this.containerEl })
 
-                if (event.target.classList.contains(CustomSelector.optionSelectedClass)) {
-                    event.target.classList.remove(CustomSelector.optionSelectedClass);
+                if (event.target.classList.contains(CustomSelector.optionSelectedClassName)) {
+                    event.target.classList.remove(CustomSelector.optionSelectedClassName);
                 } else {
                     if (!this.isMulti) {
-                        this.optionsContainerEl.querySelector(`.${CustomSelector.optionSelectedClass}`)?.classList.remove(CustomSelector.optionSelectedClass);
+                        this.optionsContainerEl.querySelector(`.${CustomSelector.optionSelectedClassName}`)?.classList.remove(CustomSelector.optionSelectedClassName);
                     }
-                    event.target.classList.add(CustomSelector.optionSelectedClass);
+                    event.target.classList.add(CustomSelector.optionSelectedClassName);
                 }
 
                 if (this.onchange) {
@@ -156,6 +157,8 @@ class CustomSelector extends CustomLabel {
 }
 
 class CustomTextarea extends CustomLabel {
+    static className = 'custom-textarea-container'
+
     static getTextarea(el) {
         const textareaEl = el.querySelector('textarea');
         
@@ -198,7 +201,7 @@ class CustomTextarea extends CustomLabel {
     init() {
         super.init();
 
-        this.containerEl.className = `custom-textarea-container ${this.containerClassName}`;
+        this.containerEl.className = `${CustomTextarea.className} ${this.containerClassName}`;
         setStyleToEl({ display: 'flex', 'flex-direction': 'column', gap: '4px' }, this.containerEl)
 
         this.containerEl.append(this.labelEl);
@@ -231,6 +234,8 @@ class CustomTextarea extends CustomLabel {
 }
 
 class CustomModal {
+    static className = 'custom-modal-container'
+
     constructor(options = {}) {
         this.settings = {
             title: 'Заголовок модального окна',
@@ -258,7 +263,7 @@ class CustomModal {
     createModalContainerEl() {
         const containerEl = document.createElement('div');
         containerEl.id = this.settings.id;
-        containerEl.className = 'custom-modal';
+        containerEl.className = CustomModal.className;
 
         const styles = {
             width: '100vw',

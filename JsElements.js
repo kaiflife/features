@@ -75,6 +75,7 @@ class CustomSelector extends CustomLabel {
         label = '',
         isRequired = false,
         onchange,
+        hasSearch = true,
     }) {
         super({ label, isRequired })
 
@@ -86,6 +87,7 @@ class CustomSelector extends CustomLabel {
 
         this.containerEl = document.createElement('div');
         this.optionsContainerEl = document.createElement('ul');
+        this.searchInputEl = document.createElement('input');
 
         this.init();
     }
@@ -101,12 +103,33 @@ class CustomSelector extends CustomLabel {
         }, '');
     }
 
+    handleSearch(event) {
+        const searchText = event.target.value.toLowerCase();
+        const options = this.optionsContainerEl.querySelectorAll('li');
+        
+        options.forEach(option => {
+            const optionText = option.textContent.toLowerCase();
+            if (optionText.includes(searchText)) {
+                option.style.display = 'block';
+            } else {
+                option.style.display = 'none';
+            }
+        });
+    }
+
     init() {
         super.init();
 
         this.containerEl.append(this.labelEl);
 
         this.setSelectorOptions(this.options);
+
+        this.searchInputEl.placeholder = 'Поиск';
+        this.searchInputEl.onkeydown = this.handleSearch
+
+        if (this.hasSearch) {
+            this.containerEl.append(this.searchInputEl);
+        }
 
         this.containerEl.id = this.id;
         this.containerEl.classList.add(CustomSelector.customSelectorClass);

@@ -7,8 +7,8 @@ const setStyleToEl = (style, el) => {
 }
 
 class CustomLabel {
-    static containerElErrorClass = 'custom-error'
-    static containerElClass = 'custom-label'
+    static errorClass = 'custom-error'
+    static className = 'custom-label'
 
     constructor({ label = '', isRequired = false }) {
         this.labelEl = document.createElement('span');
@@ -19,16 +19,16 @@ class CustomLabel {
     init() {
         this.labelEl.innerHTML = this.label;
         this.labelEl.dataset.label = this.label;
-        this.labelEl.className = CustomLabel.containerElClass;
+        this.labelEl.className = CustomLabel.className;
     }
 
     static setError({ errorText, containerEl, hasError }) {
         if (!containerEl) return;
 
-        const labelEl = containerEl.querySelector(`.${CustomLabel.containerElClass}`);
+        const labelEl = containerEl.querySelector(`.${CustomLabel.className}`);
 
         const addErrorClass = (isAdd = false) => {
-            containerEl.classList[isAdd ? 'add' : 'remove'](CustomLabel.containerElErrorClass)
+            containerEl.classList[isAdd ? 'add' : 'remove'](CustomLabel.errorClass)
         }
 
         if (labelEl) {
@@ -82,7 +82,10 @@ class CustomSelector extends CustomLabel {
         this.id = id;
         this.options = options;
         this.height = height;
+
         this.isMulti = isMulti;
+        this.hasSearch = hasSearch;
+
         this.onchange = onchange;
 
         this.containerEl = document.createElement('div');
@@ -125,14 +128,14 @@ class CustomSelector extends CustomLabel {
         this.setSelectorOptions(this.options);
 
         this.searchInputEl.placeholder = 'Поиск';
-        this.searchInputEl.onkeydown = this.handleSearch
+        this.searchInputEl.addEventListener('input', this.handleSearch.bind(this));
 
         if (this.hasSearch) {
             this.containerEl.append(this.searchInputEl);
         }
 
         this.containerEl.id = this.id;
-        this.containerEl.classList.add(CustomSelector.customSelectorClass);
+        this.containerEl.classList.add(CustomSelector.className);
 
         setStyleToEl({
             display: 'flex',
@@ -424,7 +427,9 @@ class CustomModal {
     }
 
     destroy() {
-        document.removeEventListener('keydown', this.closeOnEscButton);
+        if (this.settings.closeOnEsc) {
+            document.removeEventListener('keydown', this.closeOnEscButton);
+        }
         this.modalContainerEl.removeEventListener('click', this.closeOnOverlay);
         this.closeButtonEl.removeEventListener('click', this.closeModal);
         this.modalContainerEl.remove();

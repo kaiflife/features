@@ -6,6 +6,8 @@ const setStyleToEl = (style, el) => {
     }
 }
 
+const getClassNames = (classNames = ['']) => classNames.filter(item => !!item).join(' ').trim();
+
 class CustomLabel {
     static errorClass = 'custom-error'
     static className = 'custom-label'
@@ -53,6 +55,7 @@ class CustomLabel {
 
 class CustomSelector extends CustomLabel {
     static optionSelectedClassName = 'option-selected'
+    static optionDisabledClassName = 'option-disabled'
     static className = 'custom-selector-container'
     
     static getSelectedOptions (el) {
@@ -95,13 +98,13 @@ class CustomSelector extends CustomLabel {
         this.init();
     }
 
-    getOptionString({ isSelected, id, name }) {
-        return `<li class="${isSelected ? CustomSelector.optionSelectedClassName : ''}" value="${id}">${name}</li>`;
+    getOptionString({ isSelected, isDisabled, id, name }) {
+        return `<li class="${getClassNames([isSelected && CustomSelector.optionSelectedClassName, isDisabled && CustomSelector.optionDisabledClassName])}" value="${id}">${name}</li>`;
     }
 
     setSelectorOptions(options = []) {
-        this.optionsContainerEl.innerHTML = options.reduce((newStringHtml, { name, id }) => {
-            newStringHtml += this.getOptionString({ isSelected: false, id, name });
+        this.optionsContainerEl.innerHTML = options.reduce((newStringHtml, { name, id, isDisabled }) => {
+            newStringHtml += this.getOptionString({ isSelected: false, isDisabled , id, name });
             return newStringHtml;
         }, '');
     }
@@ -156,7 +159,9 @@ class CustomSelector extends CustomLabel {
         }, this.optionsContainerEl)
 
         this.optionsContainerEl.onclick = (event) => {
-            if (event.target.tagName === 'LI') {
+            const isDisabledOption = event.target.classList.contains(CustomSelector.optionDisabledClassName);
+
+            if (event.target.tagName === 'LI' && !isDisabledOption) {
                 CustomLabel.setError({ hasError: false, containerEl: this.containerEl })
 
                 if (event.target.classList.contains(CustomSelector.optionSelectedClassName)) {
@@ -227,7 +232,7 @@ class CustomTextarea extends CustomLabel {
     init() {
         super.init();
 
-        this.containerEl.className = `${CustomTextarea.className} ${this.containerClassName}`;
+        this.containerEl.className = getClassNames([CustomTextarea.className, this.containerClassName]);
         setStyleToEl({ display: 'flex', 'flex-direction': 'column', gap: '4px' }, this.containerEl)
 
         this.containerEl.append(this.labelEl);

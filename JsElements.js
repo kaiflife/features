@@ -6,7 +6,7 @@ const setStyleToEl = (style, el) => {
     }
 }
 
-const getClassNames = (classNames = ['']) => classNames.filter(item => !!item).join(' ').trim();
+const prepareClassNames = (classNames = ['']) => classNames.filter(item => !!item).join(' ').trim();
 
 class CustomLabel {
     static errorClass = 'custom-error'
@@ -99,7 +99,7 @@ class CustomSelector extends CustomLabel {
     }
 
     getOptionString({ isSelected, isDisabled, id, name }) {
-        return `<li class="${getClassNames([isSelected && CustomSelector.optionSelectedClassName, isDisabled && CustomSelector.optionDisabledClassName])}" value="${id}">${name}</li>`;
+        return `<li class="${prepareClassNames([isSelected && CustomSelector.optionSelectedClassName, isDisabled && CustomSelector.optionDisabledClassName])}" value="${id}">${name}</li>`;
     }
 
     setSelectorOptions(options = []) {
@@ -232,7 +232,7 @@ class CustomTextarea extends CustomLabel {
     init() {
         super.init();
 
-        this.containerEl.className = getClassNames([CustomTextarea.className, this.containerClassName]);
+        this.containerEl.className = prepareClassNames([CustomTextarea.className, this.containerClassName]);
         setStyleToEl({ display: 'flex', 'flex-direction': 'column', gap: '4px' }, this.containerEl)
 
         this.containerEl.append(this.labelEl);

@@ -8,6 +8,30 @@ const setStyleToEl = (style, el) => {
 
 const prepareClassNames = (classNames = ['']) => classNames.filter(item => !!item).join(' ').trim();
 
+class CustomButton {
+    static errorClass = 'error'
+    static className = 'custom-button'
+
+    constructor({ text = '', className, onClick }) {
+        this.buttonEl = document.createElement('button');
+        this.text = text;
+        this.className = className;
+        this.onClick = onClick;
+
+        this.init()
+    }
+
+    init() {
+        this.buttonEl.innerHTML = this.text;
+        this.buttonEl = this.onClick;
+        this.buttonEl.className = prepareClassNames([CustomButton.className, this.className]);
+    }
+
+    getElement() {
+        return this.buttonEl;
+    }
+}
+
 class CustomLabel {
     static errorClass = 'custom-error'
     static className = 'custom-label'
@@ -70,6 +94,18 @@ class CustomSelector extends CustomLabel {
         return []
     }
 
+    static getNotDisabledOptionsEls (el) {
+        if (!el) return [];
+
+        const notDisabledOptionsEls = el.querySelectorAll(`li:not(${CustomSelector.optionDisabledClassName}`);
+
+        if (notDisabledOptionsEls) {
+            return Array.from(notDisabledOptionsEls)
+        }
+
+        return []
+    }
+
     constructor({ 
         id = '',
         options = [],
@@ -79,6 +115,9 @@ class CustomSelector extends CustomLabel {
         isRequired = false,
         onchange,
         hasSearch = true,
+        selectAllButtonClassName = '',
+        inversButtonClassName = '',
+        unselectAllButtonClassName = '',
     }) {
         super({ label, isRequired })
 
@@ -128,6 +167,35 @@ class CustomSelector extends CustomLabel {
 
         this.containerEl.append(this.labelEl);
 
+        const selectAllButtonEntity = new CustomButton({
+            text: 'Выбрать всё',
+            className: selectAllButtonClassName,
+            onClick: () => {
+                const notDisabledOptionsEls = getNotDisabledOptionsEls(this.containerEl)
+
+                notDisabledOptionsEls.forEach(optionEl => optionEl.classList.add(CustomSelector.optionSelectedClassName))
+            }
+        })
+
+        const inversButtonEntity = new CustomButton({
+            text: 'Инвертировать выбор',
+            onClick: () => {
+                const notDisabledOptionsEls = getNotDisabledOptionsEls(this.containerEl);
+
+                notDisabledOptionsEls.forEach(optionEl => optionEl.classList.toggle(CustomSelector.optionSelectedClassName));
+            }
+        });
+
+        const unselectAllButtonEntity = new CustomButton({
+            text: 'Выбрать всё',
+            className: unselectAllButtonClassName,
+            onClick: () => {
+                const notDisabledOptionsEls = getNotDisabledOptionsEls(this.containerEl)
+
+                notDisabledOptionsEls.forEach(optionEl => optionEl.classList.remove(CustomSelector.optionSelectedClassName))
+            }
+        })
+
         this.setSelectorOptions(this.options);
 
         this.searchInputEl.placeholder = 'Поиск';
@@ -136,6 +204,22 @@ class CustomSelector extends CustomLabel {
         if (this.hasSearch) {
             this.containerEl.append(this.searchInputEl);
         }
+
+        const actionButtonsContainerEl = document.createElement('div');
+
+        setStyleToEl({
+            display: 'flex',
+            gap: '8px',
+            alignItems: 'center',
+        }, actionButtonsContainerEl)
+
+        actionButtonsContainerEl.append(
+            selectAllButtonEntity.getElement(),
+            inversButtonEntity.getElement(),
+            unselectAllButtonEntity.getElement()
+        );
+
+        this.containerEl.append(actionButtonsContainerEl);
 
         this.containerEl.id = this.id;
         this.containerEl.classList.add(CustomSelector.className);

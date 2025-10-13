@@ -23,7 +23,7 @@ class CustomButton {
 
     init() {
         this.buttonEl.innerHTML = this.text;
-        this.buttonEl = this.onClick;
+        this.buttonEl.onclick = this.onClick;
         this.buttonEl.className = prepareClassNames([CustomButton.className, this.className]);
     }
 
@@ -130,6 +130,9 @@ class CustomSelector extends CustomLabel {
 
         this.onchange = onchange;
 
+        this.selectAllButtonClassName = selectAllButtonClassName;
+        this.inversButtonClassName = inversButtonClassName;
+        this.unselectAllButtonClassName = unselectAllButtonClassName;
         this.containerEl = document.createElement('div');
         this.optionsContainerEl = document.createElement('ul');
         this.searchInputEl = document.createElement('input');
@@ -169,7 +172,7 @@ class CustomSelector extends CustomLabel {
 
         const selectAllButtonEntity = new CustomButton({
             text: 'Выбрать всё',
-            className: selectAllButtonClassName,
+            className: this.selectAllButtonClassName,
             onClick: () => {
                 const notDisabledOptionsEls = getNotDisabledOptionsEls(this.containerEl)
 
@@ -179,6 +182,7 @@ class CustomSelector extends CustomLabel {
 
         const inversButtonEntity = new CustomButton({
             text: 'Инвертировать выбор',
+            className: this.inversButtonClassName,
             onClick: () => {
                 const notDisabledOptionsEls = getNotDisabledOptionsEls(this.containerEl);
 
@@ -187,8 +191,8 @@ class CustomSelector extends CustomLabel {
         });
 
         const unselectAllButtonEntity = new CustomButton({
-            text: 'Выбрать всё',
-            className: unselectAllButtonClassName,
+            text: 'Сбросить выбор',
+            className: this.unselectAllButtonClassName,
             onClick: () => {
                 const notDisabledOptionsEls = getNotDisabledOptionsEls(this.containerEl)
 

@@ -97,7 +97,7 @@ class CustomSelector extends CustomLabel {
     static getNotDisabledOptionsEls (el) {
         if (!el) return [];
 
-        const notDisabledOptionsEls = el.querySelectorAll(`li:not(${CustomSelector.optionDisabledClassName}`);
+        const notDisabledOptionsEls = el.querySelectorAll(`li:not(.${CustomSelector.optionDisabledClassName}`);
 
         if (notDisabledOptionsEls) {
             return Array.from(notDisabledOptionsEls)
@@ -174,7 +174,7 @@ class CustomSelector extends CustomLabel {
             text: 'Выбрать всё',
             className: this.selectAllButtonClassName,
             onClick: () => {
-                const notDisabledOptionsEls = getNotDisabledOptionsEls(this.containerEl)
+                const notDisabledOptionsEls = CustomSelector.getNotDisabledOptionsEls(this.containerEl)
 
                 notDisabledOptionsEls.forEach(optionEl => optionEl.classList.add(CustomSelector.optionSelectedClassName))
             }
@@ -184,7 +184,7 @@ class CustomSelector extends CustomLabel {
             text: 'Инвертировать выбор',
             className: this.inversButtonClassName,
             onClick: () => {
-                const notDisabledOptionsEls = getNotDisabledOptionsEls(this.containerEl);
+                const notDisabledOptionsEls = CustomSelector.getNotDisabledOptionsEls(this.containerEl);
 
                 notDisabledOptionsEls.forEach(optionEl => optionEl.classList.toggle(CustomSelector.optionSelectedClassName));
             }
@@ -194,7 +194,7 @@ class CustomSelector extends CustomLabel {
             text: 'Сбросить выбор',
             className: this.unselectAllButtonClassName,
             onClick: () => {
-                const notDisabledOptionsEls = getNotDisabledOptionsEls(this.containerEl)
+                const notDisabledOptionsEls = CustomSelector.getNotDisabledOptionsEls(this.containerEl)
 
                 notDisabledOptionsEls.forEach(optionEl => optionEl.classList.remove(CustomSelector.optionSelectedClassName))
             }

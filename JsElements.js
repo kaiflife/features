@@ -137,13 +137,13 @@ class CustomSelector extends CustomLabel {
         this.init();
     }
 
-    getOptionString({ isSelected, isDisabled, id, name }) {
-        return `<li class="${prepareClassNames([isSelected && CustomSelector.optionSelectedClassName, isDisabled && CustomSelector.optionDisabledClassName])}" value="${id}">${name}</li>`;
+    getOptionString({ isSelected, isDisabled, id, name, value }) {
+        return `<li class="${prepareClassNames([isSelected && CustomSelector.optionSelectedClassName, isDisabled && CustomSelector.optionDisabledClassName])}" value="${value ?? id}">${name}</li>`;
     }
 
     setSelectorOptions(options = []) {
-        this.optionsContainerEl.innerHTML = options.reduce((newStringHtml, { name, id, isDisabled }) => {
-            newStringHtml += this.getOptionString({ isSelected: false, isDisabled , id, name });
+        this.optionsContainerEl.innerHTML = options.reduce((newStringHtml, { name, id, isDisabled, value }) => {
+            newStringHtml += this.getOptionString({ isSelected: false, isDisabled , id, name, value });
             return newStringHtml;
         }, '');
     }

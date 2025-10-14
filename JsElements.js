@@ -223,8 +223,6 @@ class CustomSelector extends CustomLabel {
             unselectAllButtonEntity.getElement()
         );
 
-        this.containerEl.append(actionButtonsContainerEl);
-
         this.containerEl.id = this.id;
         this.containerEl.classList.add(CustomSelector.className);
 
@@ -267,7 +265,8 @@ class CustomSelector extends CustomLabel {
             }
         };
 
-        this.containerEl.append(this.optionsContainerEl)
+        this.containerEl.append(this.optionsContainerEl);
+        this.containerEl.append(actionButtonsContainerEl);
     }
 
     getElement() {
@@ -365,7 +364,7 @@ class CustomModal {
             width: 'fit-content',
             onClose: null,
             closeOnEsc: true,
-            closeOnOverlay: true,
+            closeOnOverlay: false,
             ...options
         };
 
@@ -523,8 +522,6 @@ class CustomModal {
         if (this.settings.closeOnEsc) {
             document.removeEventListener('keydown', this.closeOnEscButton);
         }
-        this.modalContainerEl.removeEventListener('click', this.closeOnOverlay);
-        this.closeButtonEl.removeEventListener('click', this.closeModal);
         this.modalContainerEl.remove();
     }
 

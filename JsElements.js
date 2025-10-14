@@ -22,7 +22,7 @@ class CustomButton {
     }
 
     init() {
-        this.buttonEl.innerHTML = this.text;
+        this.buttonEl.textContent = this.text;
         this.buttonEl.onclick = this.onClick;
         this.buttonEl.className = prepareClassNames([CustomButton.className, this.className]);
     }
@@ -43,7 +43,7 @@ class CustomLabel {
     }
 
     init() {
-        this.labelEl.innerHTML = this.label;
+        this.labelEl.textContent = this.label;
         this.labelEl.dataset.label = this.label;
         this.labelEl.className = CustomLabel.className;
     }
@@ -60,10 +60,10 @@ class CustomLabel {
         if (labelEl) {
             if (errorText !== undefined) {
                 if (errorText) {
-                    labelEl.innerHTML += errorText
+                    labelEl.textContent += errorText
                     addErrorClass(true)
                 } else {
-                    labelEl.innerHTML = labelEl.dataset.label;
+                    labelEl.textContent = labelEl.dataset.label;
                     addErrorClass()
                 }
             } else {

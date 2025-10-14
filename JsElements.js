@@ -88,7 +88,7 @@ class CustomSelector extends CustomLabel {
         const selectedOptionsEls = el.querySelectorAll('.option-selected');
 
         if (selectedOptionsEls) {
-            return Array.from(selectedOptionsEls).map(item => item.value)
+            return Array.from(selectedOptionsEls).map(item => item.dataset.value)
         }
 
         return []
@@ -141,7 +141,7 @@ class CustomSelector extends CustomLabel {
     }
 
     getOptionString({ isSelected, isDisabled, id, name, value }) {
-        return `<li class="${prepareClassNames([isSelected && CustomSelector.optionSelectedClassName, isDisabled && CustomSelector.optionDisabledClassName])}" value="${value ?? id}">${name}</li>`;
+        return `<li class="${prepareClassNames([isSelected && CustomSelector.optionSelectedClassName, isDisabled && CustomSelector.optionDisabledClassName])}" data-value="${value ?? id}">${name}</li>`;
     }
 
     setSelectorOptions(options = []) {

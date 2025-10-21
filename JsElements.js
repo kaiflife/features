@@ -83,14 +83,7 @@ class CustomSelector extends CustomLabel {
     static className = 'custom-selector-container'
     static listeners = []
     static openedSelectorId = '';
-
-    document.addEventListener('click', (event) => {
-        if (openedSelectorId && listeners.includes(openedSelectorId)) {
-            if (!window[openedSelectorId].contains(event.target)) {
-                this.toggleOptionsAndActions(false);
-            }
-        }
-    });
+    static hasOutsideClickListener = false;    
     
     static getSelectedOptions (el) {
         if (!el) return [];
@@ -132,6 +125,18 @@ class CustomSelector extends CustomLabel {
         unselectAllButtonClassName = '',
     }) {
         super({ label, isRequired })
+
+        if (!CustomSelector.hasOutsideClickListener) {
+            CustomSelector.hasOutsideClickListener = true;
+
+            document.addEventListener('click', (event) => {
+                if (openedSelectorId && listeners.includes(openedSelectorId)) {
+                    if (!window[openedSelectorId].contains(event.target)) {
+                        this.toggleOptionsAndActions(false);
+                    }
+                }
+            });
+        }
 
         // props
         this.id = id;
@@ -232,8 +237,8 @@ class CustomSelector extends CustomLabel {
         this.containerEl.append(this.labelEl);
 
 
-        setStyleToEl({ display: 'flex', flexDirection: 'column' width: '100%'}, this.headerEl);
-        setStyleToEl({ display: 'flex', flexWrap: 'wrap', gap: '4px' width: '100%', height: 200 }, this.selectedOptionsEl);
+        setStyleToEl({ display: 'flex', flexDirection: 'column', width: '100%'}, this.headerEl);
+        setStyleToEl({ display: 'flex', flexWrap: 'wrap', gap: '4px', width: '100%', height: 200 }, this.selectedOptionsEl);
 
         this.headerEl.append(this.selectedOptionsEl);
         

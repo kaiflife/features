@@ -81,6 +81,16 @@ class CustomSelector extends CustomLabel {
     static optionSelectedClassName = 'option-selected'
     static optionDisabledClassName = 'option-disabled'
     static className = 'custom-selector-container'
+    static listeners = []
+    static openedSelectorId = '';
+
+    document.addEventListener('click', (event) => {
+        if (openedSelectorId && listeners.includes(openedSelectorId)) {
+            if (!window[openedSelectorId].contains(event.target)) {
+                this.toggleOptionsAndActions(false);
+            }
+        }
+    });
     
     static getSelectedOptions (el) {
         if (!el) return [];
@@ -115,27 +125,40 @@ class CustomSelector extends CustomLabel {
         isRequired = false,
         onchange,
         hasSearch = true,
+        shouldHideOptions = true,
+        shouldCloseOutside = true,
         selectAllButtonClassName = '',
         inversButtonClassName = '',
         unselectAllButtonClassName = '',
     }) {
         super({ label, isRequired })
 
+        // props
         this.id = id;
         this.options = options;
         this.height = height;
 
+        // booleans
         this.isMulti = isMulti;
         this.hasSearch = hasSearch;
+        this.shouldCloseOutside = shouldCloseOutside;
+        this.shouldHideOptions = shouldHideOptions;
 
+        // functions
         this.onchange = onchange;
 
+        // classnames
         this.selectAllButtonClassName = selectAllButtonClassName;
         this.inversButtonClassName = inversButtonClassName;
         this.unselectAllButtonClassName = unselectAllButtonClassName;
+
+        // els
         this.containerEl = document.createElement('div');
-        this.optionsContainerEl = document.createElement('ul');
+        this.selectedOptionsEl = document.createElement('div');
+        this.headerEl = document.createElement('div');
         this.searchInputEl = document.createElement('input');
+        this.optionsAndActionsEl = document.createElement('div');
+        this.optionsContainerEl = document.createElement('ul');
 
         this.init();
     }
@@ -165,18 +188,80 @@ class CustomSelector extends CustomLabel {
         });
     }
 
+    setSelectedOptions() {
+        const selectedOptions = CustomSelector.getSelectedOptions(this.containerEl)
+
+        const fragment = document.documentFragment();
+
+        fragment.append(...selectedOptions)
+
+        this.selectedOptionsEl.innerHTML = fragment;
+    }
+
+    toggleOptionsAndActions(isVisible) {
+        const visiblePropValue = isVisible !== undefined && isVisible ? 'flex' : 'none';
+        const stylePropValue =  this.optionsAndActionsEl.style.display === 'none' ? 'flex' : 'none';
+
+        const isOpened = (visiblePropValue || stylePropValue) === 'flex'
+
+        if (isOpened) CustomSelector.openedSelectorId = this.id;
+
+        setStyleToEl({ display: visiblePropValue || stylePropValue}, this.optionsAndActionsEl)
+    }
+
     init() {
         super.init();
 
+        this.containerEl.id = this.id;
+        this.containerEl.classList.add(CustomSelector.className);
+        
+        setStyleToEl({
+            display: 'flex',
+            'flex-direction': 'column',
+            gap: '4px',
+        }, this.containerEl)
+
+        if (this.shouldHideOptions) {
+            this.containerEl.addEventListener('click', (event) => {
+                event.stopPropagation();
+
+                this.toggleOptionsAndActions(true);
+            });
+        }
+
         this.containerEl.append(this.labelEl);
+
+
+        setStyleToEl({ display: 'flex', flexDirection: 'column' width: '100%'}, this.headerEl);
+        setStyleToEl({ display: 'flex', flexWrap: 'wrap', gap: '4px' width: '100%', height: 200 }, this.selectedOptionsEl);
+
+        this.headerEl.append(this.selectedOptionsEl);
+        
+        if (this.hasSearch) {
+            this.searchInputEl.placeholder = 'Поиск';
+            this.searchInputEl.addEventListener('input', this.handleSearch.bind(this));
+            this.headerEl.append(this.searchInputEl);
+        }
+        
+        this.containerEl.append(this.headerEl);
+
+        const actionButtonsContainerEl = document.createElement('div');
+        
+        setStyleToEl({
+            display: 'flex',
+            gap: '8px',
+            alignItems: 'center',
+        }, actionButtonsContainerEl)
 
         const selectAllButtonEntity = new CustomButton({
             text: 'Выбрать всё',
             className: this.selectAllButtonClassName,
             onClick: () => {
-                const notDisabledOptionsEls = CustomSelector.getNotDisabledOptionsEls(this.containerEl)
+                const notDisabledOptionsEls = CustomSelector.getNotDisabledOptionsEls(this.containerEl);
 
-                notDisabledOptionsEls.forEach(optionEl => optionEl.classList.add(CustomSelector.optionSelectedClassName))
+                notDisabledOptionsEls.forEach(optionEl => optionEl.classList.add(CustomSelector.optionSelectedClassName));
+
+                this.setSelectedOptions();
             }
         })
 
@@ -187,6 +272,8 @@ class CustomSelector extends CustomLabel {
                 const notDisabledOptionsEls = CustomSelector.getNotDisabledOptionsEls(this.containerEl);
 
                 notDisabledOptionsEls.forEach(optionEl => optionEl.classList.toggle(CustomSelector.optionSelectedClassName));
+
+                this.setSelectedOptions();
             }
         });
 
@@ -194,54 +281,32 @@ class CustomSelector extends CustomLabel {
             text: 'Сбросить выбор',
             className: this.unselectAllButtonClassName,
             onClick: () => {
-                const notDisabledOptionsEls = CustomSelector.getNotDisabledOptionsEls(this.containerEl)
+                const notDisabledOptionsEls = CustomSelector.getNotDisabledOptionsEls(this.containerEl);
 
-                notDisabledOptionsEls.forEach(optionEl => optionEl.classList.remove(CustomSelector.optionSelectedClassName))
+                notDisabledOptionsEls.forEach(optionEl => optionEl.classList.remove(CustomSelector.optionSelectedClassName));
+
+                this.setSelectedOptions();
             }
         })
-
-        this.setSelectorOptions(this.options);
-
-        this.searchInputEl.placeholder = 'Поиск';
-        this.searchInputEl.addEventListener('input', this.handleSearch.bind(this));
-
-        if (this.hasSearch) {
-            this.containerEl.append(this.searchInputEl);
-        }
-
-        const actionButtonsContainerEl = document.createElement('div');
-
-        setStyleToEl({
-            display: 'flex',
-            gap: '8px',
-            alignItems: 'center',
-        }, actionButtonsContainerEl)
-
+        
         actionButtonsContainerEl.append(
             selectAllButtonEntity.getElement(),
             inversButtonEntity.getElement(),
             unselectAllButtonEntity.getElement()
         );
-
-        this.containerEl.id = this.id;
-        this.containerEl.classList.add(CustomSelector.className);
-
-        setStyleToEl({
-            display: 'flex',
-            'flex-direction': 'column',
-            gap: '4px',
-        }, this.containerEl)
+        
+        this.setSelectorOptions(this.options);
 
         setStyleToEl({
             height: this.height,
             width: '100%',
             display: 'flex',
-            'flex-direction': 'column',
+            flexDirection: 'column',
             gap: '8px',
             padding: '8px',
             overflow: 'auto',
             border: '1px solid black',
-            'border-radius': '4px',
+            borderRadius: '4px',
         }, this.optionsContainerEl)
 
         this.optionsContainerEl.onclick = (event) => {
@@ -259,14 +324,25 @@ class CustomSelector extends CustomLabel {
                     event.target.classList.add(CustomSelector.optionSelectedClassName);
                 }
 
+                this.setSelectedOptions()
+
                 if (this.onchange) {
                     this.onchange(event, CustomSelector.getSelectedOptions(event.target))
                 }
             }
         };
 
-        this.containerEl.append(this.optionsContainerEl);
-        this.containerEl.append(actionButtonsContainerEl);
+        if (this.shouldCloseOutside) {
+            CustomSelector.listeners.append(id)
+        }
+
+        setStyleToEl({ flexDirection: 'column', gap: '4px' }, this.optionsAndActionsEl);
+
+        this.toggleOptionsAndActions()
+        
+        this.optionsAndActionsEl.append(this.optionsContainerEl);
+        this.optionsAndActionsEl.append(actionButtonsContainerEl);
+        this.containerEl.append(this.optionsAndActionsEl);
     }
 
     getElement() {

@@ -314,7 +314,7 @@ class CustomSelector extends CustomLabel {
             borderRadius: '4px',
         }, this.optionsContainerEl)
 
-        this.optionsContainerEl.onclick = (event) => {
+        this.optionsContainerEl.addEventListener('click', (event) => {
             const isDisabledOption = event.target.classList.contains(CustomSelector.optionDisabledClassName);
 
             if (event.target.tagName === 'LI' && !isDisabledOption) {
@@ -335,7 +335,7 @@ class CustomSelector extends CustomLabel {
                     this.onchange(event, CustomSelector.getSelectedOptions(event.target))
                 }
             }
-        };
+        });
 
         if (this.shouldCloseOutside) {
             CustomSelector.listeners.append(id)

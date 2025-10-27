@@ -186,7 +186,7 @@ class CustomSelector extends CustomLabel {
         options.forEach(option => {
             const optionText = option.textContent.toLowerCase();
             if (optionText.includes(searchText)) {
-                option.style.display = 'block';
+                option.style.display = 'flex';
             } else {
                 option.style.display = 'none';
             }
@@ -315,24 +315,27 @@ class CustomSelector extends CustomLabel {
         }, this.optionsContainerEl)
 
         this.optionsContainerEl.addEventListener('click', (event) => {
-            const isDisabledOption = event.target.classList.contains(CustomSelector.optionDisabledClassName);
+            if (event.target.tagName === 'UL') return;
 
-            if (event.target.tagName === 'LI' && !isDisabledOption) {
+            const liTarget = event.target.tagName === 'LI' ? event.target : event.target.closest('li')
+
+            const isDisabledOption = liTarget.classList.contains(CustomSelector.optionDisabledClassName);
+
+
+            if (liTarget && !isDisabledOption) {
                 CustomLabel.setError({ hasError: false, containerEl: this.containerEl })
 
-                if (event.target.classList.contains(CustomSelector.optionSelectedClassName)) {
-                    event.target.classList.remove(CustomSelector.optionSelectedClassName);
+                if (liTarget.classList.contains(CustomSelector.optionSelectedClassName)) {
+                    liTarget.classList.remove(CustomSelector.optionSelectedClassName);
                 } else {
                     if (!this.isMulti) {
                         this.optionsContainerEl.querySelector(`.${CustomSelector.optionSelectedClassName}`)?.classList.remove(CustomSelector.optionSelectedClassName);
                     }
-                    event.target.classList.add(CustomSelector.optionSelectedClassName);
+                    liTarget.classList.add(CustomSelector.optionSelectedClassName);
                 }
 
-                this.setSelectedOptions()
-
                 if (this.onchange) {
-                    this.onchange(event, CustomSelector.getSelectedOptions(event.target))
+                    this.onchange(event, CustomSelector.getSelectedOptions(liTarget))
                 }
             }
         });

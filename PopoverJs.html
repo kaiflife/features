@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ru">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Popover Example</title>
+		<style>
+			body {
+				position: relative;
+				height: 100vh;
+				margin: 0;
+			}
+
+			.popover {
+				position: absolute;
+				background: #fff;
+				border: 1px solid #ccc;
+				border-radius: 4px;
+				box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+				padding: 12px;
+				max-width: 300px;
+				z-index: 1000;
+			}
+
+			.popover-close {
+				position: absolute;
+				top: 4px;
+				right: 8px;
+				border: none;
+				background: none;
+				font-size: 18px;
+				cursor: pointer;
+				color: #888;
+			}
+
+			.popover-close:hover {
+				color: #000;
+			}
+
+			#trigger-btn {
+				position: absolute;
+				bottom: 0;
+			}
+		</style>
+	</head>
+	<body>
+		<button id="trigger-btn">Нажми меня!</button>
+
+		<script>
+			class Popover {
+				constructor(triggerId, contentHtml, options = {}) {
+					// Обязательные параметры
+					this.trigger = document.getElementById(triggerId);
+					if (!this.trigger) {
+						throw new Error(`Элемент с ID "${triggerId}" не найден.`);
+					}
+
+					this.contentHtml = contentHtml;
+
+					// Настройки по умолчанию
+					this.options = Object.assign(
+						{
+							placement: 'bottom', // 'top', 'left', 'right'
+							offset: 8, // отступ от триггера
+							closeOnOutsideClick: true,
+							closeButton: true, // кнопка закрытия внутри попвера
+							container: document.body, // куда вставлять попвер
+							className: 'popover', // CSS-класс попвера
+						},
+						options
+					);
+
+					this.popoverElement = null;
+					this.isOpen = false;
+
+					// Привязываем события
+					this.trigger.addEventListener('click', this.show.bind(this));
+				}
+
+				show() {
+					if (this.isOpen) return;
+
+					// Создаём элемент попвера
+					this.popoverElement = document.createElement('div');
+					this.popoverElement.className = this.options.className;
+					this.popoverElement.innerHTML = this.contentHtml;
+
+					// Добавляем кнопку закрытия, если нужно
+					if (this.options.closeButton) {
+						const closeBtn = document.createElement('button');
+						closeBtn.className = 'popover-close';
+						closeBtn.textContent = '×';
+						closeBtn.addEventListener('click', this.hide.bind(this));
+						this.popoverElement.appendChild(closeBtn);
+					}
+
+					// Вставляем в контейнер
+					this.options.container.appendChild(this.popoverElement);
+
+					// Позиционируем
+					this.positionPopover();
+
+					// Обработчик закрытия по клику вне
+					if (this.options.closeOnOutsideClick) {
+						document.addEventListener('click', this.onDocumentClick.bind(this));
+					}
+
+					this.isOpen = true;
+				}
+
+				hide() {
+					if (!this.isOpen || !this.popoverElement) return;
+
+					this.popoverElement.remove();
+					this.popoverElement = null;
+					this.isOpen = false;
+
+					document.removeEventListener('click', this.onDocumentClick.bind(this));
+				}
+
+				positionPopover() {
+					const triggerRect = this.trigger.getBoundingClientRect();
+					const popoverRect = this.popoverElement.getBoundingClientRect();
+					const offset = this.options.offset;
+					const windowWidth = window.innerWidth;
+					const windowHeight = window.innerHeight;
+					let top, left;
+
+					// Первичный расчёт позиции в зависимости от placement
+					switch (this.options.placement) {
+						case 'top':
+							top = triggerRect.top - popoverRect.height - offset;
+							left = triggerRect.left + (triggerRect.width - popoverRect.width) / 2;
+							break;
+						case 'bottom':
+							top = triggerRect.bottom + offset;
+							left = triggerRect.left + (triggerRect.width - popoverRect.width) / 2;
+							break;
+						case 'left':
+							top = triggerRect.top + (triggerRect.height - popoverRect.height) / 2;
+							left = triggerRect.left - popoverRect.width - offset;
+							break;
+						case 'right':
+							top = triggerRect.top + (triggerRect.height - popoverRect.height) / 2;
+							left = triggerRect.right + offset;
+							break;
+						default:
+							top = triggerRect.bottom + offset;
+							left = triggerRect.left;
+					}
+
+					// Корректировка по горизонтали (left)
+					if (left < 0) {
+						left = 0; // Прижимаем к левому краю
+					} else if (left + popoverRect.width > windowWidth) {
+						left = windowWidth - popoverRect.width; // Прижимаем к правому краю
+					}
+
+					// Корректировка по вертикали (top)
+					if (top < 0) {
+						top = 0; // Прижимаем к верхнему краю
+					} else if (top + popoverRect.height > windowHeight) {
+						// Если снизу не хватает места — пытаемся разместить сверху от триггера
+						if (this.options.placement === 'bottom') {
+							top = triggerRect.top - popoverRect.height - offset;
+							// Повторная проверка после смены позиции
+							if (top < 0) top = 0;
+						} else {
+							top = windowHeight - popoverRect.height; // Прижимаем к нижнему краю
+						}
+					}
+
+					// Применяем итоговые координаты
+					this.popoverElement.style.top = `${top}px`;
+					this.popoverElement.style.left = `${left}px`;
+				}
+
+				onDocumentClick(event) {
+					if (
+						this.isOpen &&
+						!this.popoverElement.contains(event.target) &&
+						!this.trigger.contains(event.target)
+					) {
+						this.hide();
+					}
+				}
+
+				// Метод для ручного закрытия
+				destroy() {
+					this.hide();
+					this.trigger.removeEventListener('click', this.show.bind(this));
+				}
+			}
+
+			// Создаём попвер
+			const popover = new Popover(
+				'trigger-btn',
+				'<p><strong>Привет!</strong><br>Это всплывающее окно с HTML.</p>',
+				{
+					placement: 'bottom',
+					offset: 10,
+					closeButton: true,
+					closeOnOutsideClick: true,
+				}
+			);
+		</script>
+	</body>
+</html>

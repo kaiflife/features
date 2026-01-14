@@ -1,0 +1,44 @@
+
+function whichAnimationEvent() {
+  const el = document.createElement('fakeelement');
+  const animations = {
+    animation: 'animationend',
+    OAnimation: 'oAnimationEnd',
+    MozAnimation: 'animationend',
+    WebkitAnimation: 'webkitAnimationEnd'
+  };
+
+  for (const t in animations) {
+    if (el.style[t] !== undefined) {
+      return animations[t];
+    }
+  }
+}
+
+const animationEvent = whichAnimationEvent();
+
+const element = document.querySelector('.your-element');
+
+element.addEventListener(animationEvent, function() {
+  console.log('Анимация завершилась!');
+  // Ваш код после окончания анимации
+});
+
+function monitorAnimation(element, callback) {
+  // Для Web Animations API
+  if (element.getAnimations) {
+    const animations = element.getAnimations();
+    animations.forEach(anim => {
+      anim.finished.then(callback);
+    });
+  }
+
+  // Для CSS‑анимаций
+  const animationEvent = whichAnimationEvent();
+  element.addEventListener(animationEvent, callback);
+}
+
+// Использование
+monitorAnimation(document.querySelector('.my-element'), () => {
+  console.log('Любая анимация завершилась!');
+});

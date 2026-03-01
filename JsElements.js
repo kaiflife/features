@@ -1,12 +1,42 @@
 const setStyleToEl = (style, el) => {
-    if (style && el) {
-        Object.keys(style).forEach(styleKey => {
-            el.style[styleKey] = style[styleKey]
-        })
-    }
-}
+  // Валидация
+  if (!style || !el || !(el instanceof Element) || typeof style !== 'object') return;
 
-const prepareClassNames = (classNames = ['']) => classNames.filter(item => !!item).join(' ').trim();
+  // Если style пустой, выходим
+  if (Object.keys(style).length === 0) return;
+
+  let cssText = '';
+  let hasStyles = false;
+
+  for (const [key, value] of Object.entries(style)) {
+    // Пропускаем null, undefined, пустые строки
+    if (value == null || value === '') continue;
+
+    if (hasStyles) {
+      cssText += '; ';
+    }
+    cssText += `${key}: ${value}`;
+    hasStyles = true;
+  }
+
+  // Только если есть что добавить
+  if (hasStyles) {
+    el.style.cssText += el.style.cssText ? '; ' + cssText : cssText;
+  }
+};
+
+const prepareClassNames = (classNames = ['']) => {
+  if (!classNames || classNames.length === 0) return '';
+
+  const result = [];
+  for (let i = 0; i < classNames.length; i++) {
+    const className = classNames[i];
+    if (className) {
+      result.push(className);
+    }
+  }
+  return result.join(' ');
+};
 
 class CustomButton {
     static errorClass = 'error'
@@ -211,7 +241,7 @@ class CustomSelector extends CustomLabel {
 
         if (isOpened) CustomSelector.openedSelectorId = this.id;
 
-        setStyleToEl({ display: visiblePropValue || stylePropValue}, this.optionsAndActionsEl)
+        setStyleToEl({ 'display': visiblePropValue || stylePropValue}, this.optionsAndActionsEl)
     }
 
     init() {
@@ -221,9 +251,9 @@ class CustomSelector extends CustomLabel {
         this.containerEl.classList.add(CustomSelector.className);
         
         setStyleToEl({
-            display: 'flex',
+            'display': 'flex',
             'flex-direction': 'column',
-            gap: '4px',
+            'gap': '4px',
         }, this.containerEl)
 
         if (this.shouldHideOptions) {
@@ -237,8 +267,8 @@ class CustomSelector extends CustomLabel {
         this.containerEl.append(this.labelEl);
 
 
-        setStyleToEl({ display: 'flex', flexDirection: 'column', width: '100%'}, this.headerEl);
-        setStyleToEl({ display: 'flex', flexWrap: 'wrap', gap: '4px', width: '100%', height: 200 }, this.selectedOptionsEl);
+        setStyleToEl({ 'display': 'flex', 'flex-direction': 'column', 'width': '100%'}, this.headerEl);
+        setStyleToEl({ 'display': 'flex', 'flex-wrap': 'wrap', 'gap': '4px', 'width': '100%', 'height': 200 }, this.selectedOptionsEl);
 
         this.headerEl.append(this.selectedOptionsEl);
         
@@ -253,9 +283,9 @@ class CustomSelector extends CustomLabel {
         const actionButtonsContainerEl = document.createElement('div');
         
         setStyleToEl({
-            display: 'flex',
-            gap: '8px',
-            alignItems: 'center',
+            'display': 'flex',
+            'gap': '8px',
+            'align-items': 'center',
         }, actionButtonsContainerEl)
 
         const selectAllButtonEntity = new CustomButton({
@@ -303,15 +333,15 @@ class CustomSelector extends CustomLabel {
         this.setSelectorOptions(this.options);
 
         setStyleToEl({
-            height: this.height,
-            width: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '8px',
-            padding: '8px',
-            overflow: 'auto',
-            border: '1px solid black',
-            borderRadius: '4px',
+            'height': this.height,
+            'width': '100%',
+            'display': 'flex',
+            'flex-direction': 'column',
+            'gap': '8px',
+            'padding': '8px',
+            'overflow': 'auto',
+            'border': '1px solid black',
+            'border-radius': '4px',
         }, this.optionsContainerEl)
 
         this.optionsContainerEl.addEventListener('click', (event) => {
@@ -344,7 +374,7 @@ class CustomSelector extends CustomLabel {
             CustomSelector.listeners.append(id)
         }
 
-        setStyleToEl({ flexDirection: 'column', gap: '4px' }, this.optionsAndActionsEl);
+        setStyleToEl({ 'flex-direction': 'column', 'gap': '4px' }, this.optionsAndActionsEl);
 
         this.toggleOptionsAndActions()
         
@@ -404,7 +434,7 @@ class CustomTextarea extends CustomLabel {
         super.init();
 
         this.containerEl.className = prepareClassNames([CustomTextarea.className, this.containerClassName]);
-        setStyleToEl({ display: 'flex', 'flex-direction': 'column', gap: '4px' }, this.containerEl)
+        setStyleToEl({ 'display': 'flex', 'flex-direction': 'column', 'gap': '4px' }, this.containerEl)
 
         this.containerEl.append(this.labelEl);
 
@@ -468,16 +498,16 @@ class CustomModal {
         containerEl.className = CustomModal.className;
 
         const styles = {
-            width: '100vw',
-            height: '100vh',
-            zIndex: '3',
-            position: 'fixed',
-            top: '0',
-            left: '0',
-            backgroundColor: 'rgba(0,0,0,0.4)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
+            'width': '100vw',
+            'height': '100vh',
+            'z-index': '3',
+            'position': 'fixed',
+            'top': '0',
+            'left': '0',
+            'background-color': 'rgba(0,0,0,0.4)',
+            'display': 'flex',
+            'align-items': 'center',
+            'justify-content': 'center'
         };
 
         setStyleToEl(styles, containerEl)
@@ -488,7 +518,7 @@ class CustomModal {
     createHeaderEl() {
         const headerEl = document.createElement('div');
         headerEl.classList.add('header');
-        setStyleToEl({ 'padding-right': '56px', position: 'relative', 'min-height': '38px' }, headerEl);
+        setStyleToEl({ 'padding-right': '56px', 'position': 'relative', 'min-height': '38px' }, headerEl);
 
 
         const title = document.createElement('h3');
@@ -499,11 +529,11 @@ class CustomModal {
         this.closeButtonEl.textContent = '×';
 
         const buttonStyles = {
-            position: 'absolute',
-            width: '38px',
-            height: '38px',
-            top: '-8px',
-            right: '0'
+            'position': 'absolute',
+            'width': '38px',
+            'height': '38px',
+            'top': '-8px',
+            'right': '0'
         };
 
         setStyleToEl(buttonStyles, this.closeButtonEl)
@@ -518,12 +548,12 @@ class CustomModal {
         mainEl.classList.add('main');
 
         const styles = {
-            display: 'flex',
-            flexDirection: 'column',
-            height: '0',
-            gap: '8px',
-            overflow: 'auto',
-            flex: '1'
+            'display': 'flex',
+            'flex-direction': 'column',
+            'height': '0',
+            'gap': '8px',
+            'overflow': 'auto',
+            'flex': '1'
         };
 
         setStyleToEl(styles, mainEl)
@@ -556,13 +586,13 @@ class CustomModal {
         const modalEl = document.createElement('div');
 
         setStyleToEl({
-            padding: '14px',
-            backgroundColor: 'white',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '8px',
-            width: this.settings.width,
-            height: this.settings.height,
+            'padding': '14px',
+            'background-color': 'white',
+            'display': 'flex',
+            'flex-direction': 'column',
+            'gap': '8px',
+            'width': this.settings.width,
+            'height': this.settings.height,
             'max-height': '100vh',
         }, modalEl)
 
